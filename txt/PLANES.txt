@@ -1,0 +1,62 @@
+Script = traducirlo
+La Script = Script
+
+
+
+
+PLANES: 
+
+        >NINGUNO
+        >Crear una o un script para cypath
+            -Como empezar?
+                -opción 1: no empezar
+                -opción 2: tomar de "referencia" una script de internet
+                -opción 3: crear una script básica, y luego tomar de ""referencia"" una de internet
+                -opción 4: hacerlo desde cero
+
+
+
+ETAPA 0000:
+    -añadir la lista de requisitos.
+        --ordenar por prioridades.
+
+ETAPA 0001:
+    -Crear una script básica:
+            
+        > Ver lista de requisitos.
+
+ETAPA 0010:
+    -Tomar una Script de "referencia":
+        >crear una lista/ posiblemente carpeta con todas las scripts de referencias..
+        >Encontrar en la lista/ carpeta todas la script que cumpla mejor con los requisitos.
+        >Ordenar de forma intuitiva y con los menores comentarios posibles
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                        LEER
+                                                                          |
+ETAPA 1000 0000 0000 0000 0000:                                           |
+    -crear un repositorio con la script                                   |
+    -limpiar código y dejar SOLAMENTE los comentarios NECESARIOS. <- <- <-|
+
+
+
+
+
+ORDEN DE ETAPAS: 0000, 0010, 0001.
