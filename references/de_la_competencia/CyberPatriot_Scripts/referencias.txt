@@ -1,0 +1,5 @@
+Link: https://github.com/Abhik837/CyberPatriot_Scripts/blob/main/Linux_Ubuntu.sh
+
+
+NT: tiene alguans partes para windows, pero las excluí. Revisar mejor, en el link, potencialmente virus, 
+    archivo corrupto, o el mejor script de todos
