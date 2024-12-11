@@ -7,9 +7,9 @@ PLANES:
         >NINGUNO
         >Crear una o un script para cypath
             -Como empezar?
-                [ ]    -opción 1: no empezar
+                [x]    -opción 1: no empezar
                 [ ]    -opción 2: tomar de "referencia" una script de internet
-                [x]    -opción 3: crear una script básica, y luego tomar de ""referencia"" una de internet
+                [ ]    -opción 3: crear una script básica, y luego tomar de ""referencia"" una de internet
                     [ ]    -opción 4: hacerlo desde cero
 
 
