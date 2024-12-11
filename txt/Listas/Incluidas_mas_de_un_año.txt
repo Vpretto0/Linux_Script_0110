@@ -1,0 +1,8 @@
+Carpetas de la seccion 
+                de hace mas de un año 
+                que tienen checklists
+
+
+> CP-2020-2021 (Checklist)
+> cypascript (tiene referencias en .conf)
+> cypalinux (Checklists, info útil)

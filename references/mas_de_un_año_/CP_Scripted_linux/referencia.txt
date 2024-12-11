@@ -1,0 +1,3 @@
+link: https://github.com/SoCuul/CP-ScriptedLinux
+
+Tiempo: como un año

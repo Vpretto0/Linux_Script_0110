@@ -2,17 +2,15 @@ Script = traducirlo
 La Script = Script
 
 
-
-
 PLANES: 
 
         >NINGUNO
         >Crear una o un script para cypath
             -Como empezar?
-                -opción 1: no empezar
-                -opción 2: tomar de "referencia" una script de internet
-                -opción 3: crear una script básica, y luego tomar de ""referencia"" una de internet
-                -opción 4: hacerlo desde cero
+                [ ]    -opción 1: no empezar
+                [ ]    -opción 2: tomar de "referencia" una script de internet
+                [x]    -opción 3: crear una script básica, y luego tomar de ""referencia"" una de internet
+                    [ ]    -opción 4: hacerlo desde cero
 
 
 
@@ -54,6 +52,8 @@ ETAPA 0010:
 ETAPA 1000 0000 0000 0000 0000:                                           |
     -crear un repositorio con la script                                   |
     -limpiar código y dejar SOLAMENTE los comentarios NECESARIOS. <- <- <-|
+    -ponerle un nombre que no sea script de cypath, para que 
+        los demás no lo encuentren  
 
 
 

@@ -1,0 +1,84 @@
+COPIADO DE NOTION
+
+La informacion con la que contamos:
+
+- Varias checklists y scripts en internet
+- Ronda 1 & 2 de experiencia
+- Respuestas de la práctica para la ronda 2
+- Checklist customizada de las rondas anteriores (50%)
+- Posible pista sobre que los sistemas de high school no habrán sido modificados (49% cierto)
+- Creo que aumenta de dificultad un 50-25% entre rondas
+- Experiencia(casi nula) en mint y ubuntu 
+- Conocimientos básicos, pero útiles
+    - Conocimientos básicos acerca de los programas en las listas negras (almenos sé que existen)
+- Checklists de ciberseguridad para linux (no tienen que ser de cyberpatriot)
+- Checklists de ciberseguridad para linux (pueden ser de cyberpatriot)
+
+
+Cosas que debe poder cumplir:
+
+- Gestión de usuarios
+    - no cuentas de invitados (podría cambiar pero es probable que no)
+    - si un usuario tiene una contraseña insegura, o no tiene, cambiarlo a: <N0Pu3D0P0N3R$$>
+
+
+- Política de contraseñas
+    - Longitud mínima
+    - Edad mínima
+    - boqueo por intentos fallidos
+    - no contraseñas nulas (inv. que son contraseñas nulas)
+    - Usar Passwd
+        - tal vez con Pwck
+        - Shadow Utilities(?) -los saqué de una lista poco confiable --revisar
+
+
+- Seguridad de la Red:
+    - UFW (firewall)
+    - IPv4 TCP SYN cookies
+    - IPv4 forwarding desactivado
+
+
+- Servicios
+    - Detectar servicios no autorizados // no permitidos (ni idea de cómo)
+    - Identificar softwares de la list negra, pero no los eliminará, solo avisará, 
+        porque puede que haya que excluir a uno, y tener un codigo comentado para 
+        eliminar cualquier elemento de la lista negra que sea detectado.
+
+
+- Actualizaciones
+    - Actualizar sistema
+    - Actualizar otros sistemas
+    - Habilitar actualizaciones automáticas
+
+
+- Seguridad
+    - permisos en archivos críticos
+    - SSH root login dehabilitado (puede que no haya que eliminarlo, hacer un checklist de cosas que pueden cambiar)
+    - configurar ASLR
+    - configurar AppArmor(?)
+    - configuarar ClamAV(?)
+    - configuarar otras cosas parecidas
+
+    - Configuarar auditd
+    - usar Lynis(?)
+    - podría implementar LogWatch (?)
+
+
+
+
+Cosas a excluir, pero tener en cuenta:
+
+- usuarios no autorizados
+- usuarios que no son administradores
+- herramientas especiales que hay que excluir
+
+Los que tienen “(?)” verificar que tan beneficiosos puede ser durante cypath
+
+Se puede programar un codigo en bash que llame mas codigos en python y hacer algo complejo.
+en plan, un montón de defs
+
+
+Idea:
+- [ ]  ninguna
+- [ ]  buscar una alternativa razonable
+- [x]  usar .sh en vs code y cruzar los dedos para que funcione
