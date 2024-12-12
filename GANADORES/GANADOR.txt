@@ -8,6 +8,9 @@ TERCER LUGAR PARA:
             > Cyberpatriot-Checklists
             > CyberPatriot --Descubir Diferencias
 
+CUARTO LUGAR PARA:
+            >cyberpatriotsscript
+
 
             DECIDIR....
 
@@ -16,23 +19,29 @@ GANADORES = tres mejores scripts
 ganadores = GANDORES
 
 
+
+
+
 PROXIMOS PASOS:
 
-        PASO 0001:
+        PASO 0001:      [ ]
+
             > Identificar qué códigos son los mejores
 
 
-        PASO 0010:
+        PASO 0010:      [ ]
           
             > Hacer una checlist estándard
 
-        PASO 0011:
+        PASO 0011:      [ ]
+
             > Hacer una lista de todas las funciones llamada funciones_que_funcionan dentro de los ganadores
             > Clasificarlas según la checklist estándard y añadir funciones extras que podrían contener
             > Definir cada función
 
 
-        PASO 0100:
+        PASO 0100:      [ ]
+
             > Comparar scripts
             > Usar como script base la que tenga más funciones que puedan ser útiles
             > Seleccionar la major script 
@@ -40,15 +49,18 @@ PROXIMOS PASOS:
             Script Definitiva = la mejor script
 
 
-        PASO 0101:
+        PASO 0101:      [ ]
+
             > Comparar las otras scripts con la mejor scrip
             > si una script tiene una funcion que no tiene la script definitiva o es mejor que ella, reemplazar la funcion.
 
 
-        PASO 0110: 
+        PASO 0110:      [ ]
+
             > testear
             > hacer que funcione y probarlo en una PC
             
 
-        PASO 0111:
+        PASO 0111:      [ ]
+        
             > Retroalimentación

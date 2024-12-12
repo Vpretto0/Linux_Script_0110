@@ -1,1 +1,64 @@
 Link: https://github.com/BenWahlert/CyberPatriot-Script-Linux
+
+
+
+
+
+DESCRIPCIÓN:
+
+    Esta es la script más larga de todas, por eso asumo que debe ser la más completa, pero a la vez solo
+    tiene dos archivos y uno solamente tiene una línea de código, el otro 3616.
+
+
+CHECKLIST STANDARD:
+
+[ ]- Gestión de usuarios
+    [ ]- no cuentas de invitados (podría cambiar pero es probable que no)
+    [ ]- si un usuario tiene una contraseña insegura, o no tiene, cambiarlo a: <N0Pu3D0P0N3R$$>
+
+
+[ ]- Política de contraseñas
+    [ ]- Longitud mínima
+    [ ]- Edad mínima
+    [ ]- boqueo por intentos fallidos
+    [ ]- no contraseñas nulas (inv. que son contraseñas nulas)
+    [ ]- Usar Passwd
+        [ ]- tal vez con Pwck
+        [ ]- Shadow Utilities(?) -los saqué de una lista poco confiable --revisar
+
+
+[ ]- Seguridad de la Red:
+    [ ]- UFW (firewall)
+    [ ]- IPv4 TCP SYN cookies
+    [ ]- IPv4 forwarding desactivado
+
+
+[ ]- Servicios
+    [ ]- Detectar servicios no autorizados // no permitidos (ni idea de cómo)
+    [ ]- Identificar softwares de la list negra, pero no los eliminará, solo avisará, 
+        porque puede que haya que excluir a uno, y tener un codigo comentado para 
+        eliminar cualquier elemento de la lista negra que sea detectado.
+
+
+[ ]- Actualizaciones
+    [ ]- Actualizar sistema
+    [ ]- Actualizar otros sistemas
+    [ ]- Habilitar actualizaciones automáticas
+
+
+[ ]- Seguridad
+    [ ]- permisos en archivos críticos
+    [ ]- SSH root login dehabilitado (puede que no haya que eliminarlo, hacer un checklist de cosas que pueden cambiar)
+    [ ]- configurar ASLR
+    [ ]- configurar AppArmor(?)
+    [ ]- configuarar ClamAV(?)
+    [ ]- configuarar otras cosas parecidas
+
+    [ ]- Configuarar auditd
+    [ ]- usar Lynis(?)
+    [ ]- podría implementar LogWatch (?)
+
+
+
+
+ELEMENTOS EXTRA:
