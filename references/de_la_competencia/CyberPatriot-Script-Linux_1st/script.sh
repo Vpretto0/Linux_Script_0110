@@ -1,3 +1,7 @@
+
+#ANTES DE EMPEZAR: verificar la lista de excpciones de cypath en README 
+
+
 #!/usr/bin/env bash
 {
  l_mname="cramfs" # set module name

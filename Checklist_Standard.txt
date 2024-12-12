@@ -50,7 +50,7 @@ CHECKLIST STANDARD
     [ ]- permisos en archivos críticos
     [ ]- SSH root login dehabilitado (puede que no haya que eliminarlo, hacer un checklist de cosas que pueden cambiar)
     [ ]- configurar ASLR
-    [ ]- configurar AppArmor(?)
+    [ ]- configurar AppArmor
     [ ]- configuarar ClamAV(?)
     [ ]- configuarar otras cosas parecidas
 
