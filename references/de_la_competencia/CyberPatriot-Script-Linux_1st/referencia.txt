@@ -18,8 +18,8 @@ CHECKLIST STANDARD:
 
 
 [ ]- Política de contraseñas
-    [ ]- Longitud mínima
-    [ ]- Edad mínima
+    [x]- Longitud mínima
+    [x]- Edad mínima
     [ ]- boqueo por intentos fallidos
     [ ]- no contraseñas nulas (inv. que son contraseñas nulas)
     [ ]- Usar Passwd
