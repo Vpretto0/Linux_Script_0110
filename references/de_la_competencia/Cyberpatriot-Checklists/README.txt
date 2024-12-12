@@ -1,2 +1,0 @@
-This page will be a collection of files for my cyberpatriot competitons for this year, it is my first github repo, and I expect some errors, most files will be created by me, others will be collected and repaired, 
-if not they will be linked directly to their own repos
