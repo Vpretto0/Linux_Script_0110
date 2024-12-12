@@ -24,18 +24,18 @@ ganadores = GANDORES
 
 PROXIMOS PASOS:
 
-        PASO 0001:      [ ]
+        PASO 0001:      [x]
 
             > Identificar qué códigos son los mejores
 
 
-        PASO 0010:      [ ]
+        PASO 0010:      [x]
           
-            > Hacer una checlist estándard
+            > Hacer una checklist estándard
 
         PASO 0011:      [ ]
 
-            > Hacer una lista de todas las funciones llamada funciones_que_funcionan dentro de los ganadores
+            > [no] Hacer una lista de todas las funciones llamada funciones_que_funcionan dentro de los ganadores
             > Clasificarlas según la checklist estándard y añadir funciones extras que podrían contener
             > Definir cada función
 

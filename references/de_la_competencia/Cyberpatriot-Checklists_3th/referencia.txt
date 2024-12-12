@@ -1,3 +1,58 @@
 Link: https://github.com/Lokismash777/Cyberpatriot-Checklists/blob/main/Experimental_Checklist.sh
 
 NT: Podría tener errores, pero parece un buen codigo..
+
+
+
+
+
+CHECKLIST STANDARD:
+
+[ ]- Gestión de usuarios
+    [ ]- no cuentas de invitados (podría cambiar pero es probable que no)
+    [ ]- si un usuario tiene una contraseña insegura, o no tiene, cambiarlo a: <N0Pu3D0P0N3R$$>
+
+
+[ ]- Política de contraseñas
+    [ ]- Longitud mínima
+    [ ]- Edad mínima
+    [ ]- boqueo por intentos fallidos
+    [ ]- no contraseñas nulas (inv. que son contraseñas nulas)
+    [ ]- Usar Passwd
+        [ ]- tal vez con Pwck
+        [ ]- Shadow Utilities
+
+
+[ ]- Seguridad de la Red:
+    [ ]- UFW (firewall)
+    [ ]- IPv4 TCP SYN cookies
+    [ ]- IPv4 forwarding desactivado
+
+
+[ ]- Servicios
+    [ ]- Detectar servicios no autorizados // no permitidos (ni idea de cómo)
+    [ ]- Identificar softwares de la list negra, pero no los eliminará, solo avisará, 
+        porque puede que haya que excluir a uno, y tener un codigo comentado para 
+        eliminar cualquier elemento de la lista negra que sea detectado.
+
+
+[ ]- Actualizaciones
+    [ ]- Actualizar sistema
+    [ ]- Actualizar otros sistemas
+    [ ]- Habilitar actualizaciones automáticas
+
+
+[ ]- Seguridad
+    [ ]- permisos en archivos críticos
+    [ ]- SSH root login dehabilitado (puede que no haya que eliminarlo, hacer un checklist de cosas que pueden cambiar)
+    [ ]- configurar ASLR
+            --utiliza: address space randomization, y es lo mismo
+    [ ]- configurar AppArmor
+    [ ]- configuarar ClamAV(?)
+            -de seguro tiene una mejor
+    [ ]- configuarar otras cosas parecidas
+
+    [ ]- Configuarar auditd
+    [ ]- usar Lynis
+            --Esta script parece que hace hardening manualmente.
+    [ ]- podría implementar LogWatch (?)
