@@ -1293,76 +1293,119 @@ if [[ "$EUID" -ne 0 ]]; then
     
 fi
 
-# 2.1.1 Ensure autofs services are not in use
+
+# 2.1.1 Ensure autofs services are not in use                                           [✓]
 systemctl stop autofs
 systemctl disable autofs
 
-# 2.1.2 Ensure avahi daemon services are not in use
+# 2.1.2 Ensure avahi daemon services are not in use                                     [✓]
 systemctl stop avahi-daemon
 systemctl disable avahi-daemon
 
-# 2.1.3 Ensure dhcp server services are not in use
+# 2.1.3 Ensure dhcp server services are not in use                                      [✓]
 systemctl stop dhcpd
 systemctl disable dhcpd
 
-# 2.1.4 Ensure dns server services are not in use
+# 2.1.4 Ensure dns server services are not in use                                       [✓]
 systemctl stop named
 systemctl disable named
 
-# 2.1.5 Ensure dsnmasq services are not in use
+# 2.1.5 Ensure dsnmasq services are not in use                                          [✓]
 systemctl stop dnsmasq
 systemctl disable dnsmasq
 
-# 2.1.6 Ensure ftp server services are not in use
+# 2.1.6 Ensure ftp server services are not in use                                       [✓]
 systemctl stop vsftpd
 systemctl disable vsftpd
 
-# 2.1.7 Ensure ldap server services are not in use
+# 2.1.7 Ensure ldap server services are not in use                                      [✓]
 systemctl stop slapd
 systemctl disable slapd
 
-# 2.1.8 Ensure nfs server services are not in use
+# 2.1.8(new) Ensure message access server servicesa are not in use                      [✓]
+systemctl stop dovecot.socket dovecot.service
+systemctl mask dovecot-imapd dovecot-pop3d #cambié purge por disable
+    #nothing shoud be returned
+
+# 2.1.9(.8 before) Ensure nfs server services are not in use                            [✓]
 systemctl stop nfs-server
 systemctl disable nfs-server
 
-# 2.1.9 Ensure rpcbind services are not in use
+# 2.1.10(new) Ensure nis server services are not in use                                 [✓]
+systemctl stop ypserv.service
+systemctl mask ypserv.service
+
+# 2.1.11(new) Ensure print services are not in use                                      [x]
+# systemctl stop cups.socket cups.service
+# systemctl mask cups.socket cups.service
+        #dehabilitado, porque es un servicio para acceder a impresoras en red, 
+                                                                    #pero puedo
+
+# 2.1.12(.9 before) Ensure rpcbind services are not in use                              [✓]
 systemctl stop rpcbind
 systemctl disable rpcbind
 
-# 2.1.10 Ensure samba file server services are not in use
-systemctl stop smb
-systemctl disable smb
-
-# 2.1.11 Ensure rsync server services are not in use
+# 2.1.13(.11 before) Ensure rsync server services are not in use                        [✓]
 systemctl stop rsyncd
 systemctl disable rsyncd
 
-# 2.1.12 Ensure snmp services are not in use
+# 2.1.14(.10 before) Ensure samba file server services are not in use                   [✓]
+systemctl stop smb
+systemctl disable smb
+
+# 2.1.15(.12 before) Ensure snmp services are not in use                                [✓]
 systemctl stop snmpd
 systemctl disable snmpd
 
-# 2.1.13 Ensure tftp server services are not in use
+# 2.1.16(.13 before) Ensure tftp server services are not in use                         [✓]
 systemctl stop tftp
 systemctl disable tftp
 
-# 2.1.14 Ensure web server services are not in use
+# 2.1.17(new) Ensure web proxy services are not in use                                  [✓]
+systemctl stop squid.service
+apt purge squid
+
+# 2.1.18(.14 before) Ensure web server services are not in use                          [✓]
 systemctl stop httpd
 systemctl disable httpd
 
-# 2.1.15 Ensure xinetd services are not in use
+# 2.1.19(.15 before) Ensure xinetd services are not in use                              [✓]
 systemctl stop xinetd
 systemctl disable xinetd
 
-# 2.1.16 Ensure X window server services are not in use
+# 2.1.20(.16 before) Ensure X window server services are not in use                     [✓]
 systemctl stop x11-common
 systemctl disable x11-common
 
-# 2.1.17 Ensure mail transfer agent is configured for local-only mode
-# Configuring postfix to only listen on the loopback interface (localhost)
+# 2.1.21(.17 before) Ensure mail transfer agent is configured for local-only mode       [✓]
+        # Configuring postfix to only listen on the loopback interface (localhost)
 if systemctl is-active --quiet postfix; then
     postconf -e 'inet_interfaces = loopback-only'
     systemctl restart postfix
 fi
+
+#INTENTO DE MÓDULO 2.2
+#Configure client services:
+
+# 2.2.1 Ensure NIS Client is not installed                                              [ ]
+apt purge nis
+
+# 2.2.2 Ensure rsh client is not installed                                              [ ]
+apt purge rsh-client
+
+# 2.2.3 Ensure talk client is not installed                                             [ ]
+apt purge talk
+
+# 2.2.4 Ensure telnet client is not installed                                           [ ]
+apt purge telnet
+
+# 2.2.5 Ensure ldap client is not installed                                             [ ]
+apt purge ldap-utils
+
+# 2.2.6 Ensure ftp client is not installed                                              [ ]
+apt purge ldap-utils
+
+
 sudo apt install -y ubuntu-desktop
 
 echo "Service hardening complete. Disabled all unnecessary services."
@@ -1378,6 +1421,7 @@ else
 fi
 
 # Check if chrony or systemd-timesyncd is installed and active
+#confirmando que solo uno esté activo
 chrony_status=$(systemctl is-active chrony 2>/dev/null)
 timesyncd_status=$(systemctl is-active systemd-timesyncd 2>/dev/null)
 
@@ -2056,7 +2100,8 @@ fi
         echo -e "\n- Audit Result:\n ** FAIL **\n - Reason(s) for audit failure:\n$l_output2\n"
         [ -n "$l_output" ] && echo -e "\n- Correctly set:\n$l_output\n"
     fi
-}
+}  
+
 sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1
 sysctl -w net.ipv4.route.flush=1
 echo "net.ipv4.icmp_echo_ignore_broadcasts = 1" >> /etc/sysctl.d/60-netipv4_sysctl.conf
@@ -2779,7 +2824,7 @@ systemctl disable slapd
 systemctl disable bind9
 systemctl disable vsftpd
 systemctl disable apache2
-systemctl disable dovecot
+systemctl disable dovecot  #(2.1.8)
 systemctl disable smbd nmbd
 systemctl disable squid
 systemctl disable snmpd
