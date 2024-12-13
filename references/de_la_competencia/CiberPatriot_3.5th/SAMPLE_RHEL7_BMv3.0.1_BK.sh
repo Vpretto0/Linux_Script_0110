@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
-#
-# CIS-LBK CIS Red Hat Enterprise Linux 7 Benchmark v3.0.1 Build Kit script
-# ~/CIS-LBK/RHEL7_LBK.sh
-# 
-# Name                Date       Description
-# ------------------------------------------------------------------------------------------------
-# Eric Pinnell       11/06/20    Build Kit "CIS Red Hat Enterprise Linux 7 Benchmark v3.0.1"
-#
+
 
 if [ ! "$BASH_VERSION" ] ; then
 	exec /bin/bash "$0" "$@"

@@ -1,0 +1,6 @@
+LINK: https://github.com/MVladislav/ansible-cis-ubuntu-2204
+
+
+> La mejor script de todas, pero no dice específicamente que es para ciberpatriots
+> por lo que es mejor usarla como referencia junto al pdf que tenemos y recomiendo
+> revisar este link (no es un virus).
