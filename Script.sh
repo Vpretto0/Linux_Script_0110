@@ -1928,6 +1928,8 @@ fi
         echo "/etc/at.deny does not exist, no action required."
     fi
 }
+
+# 3.1.2
 #!/usr/bin/env bash
 {
     module_fix()
@@ -1957,7 +1959,7 @@ fi
 }
 #!/usr/bin/env bash
 
-# Check if the 'bluez' package is installed
+# Check if the 'bluez' package is installed 3.1.3
 if dpkg-query -s bluez &>/dev/null; then
     echo "The 'bluez' package is installed."
 
@@ -2254,11 +2256,12 @@ else
             fi
         }  
 
-        sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1
+        sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1 # 3.3.4
         sysctl -w net.ipv4.route.flush=1
+        sysctl -w net.ipv4.icmp_ignore_bogus_error_responses=1 # 3.3.3
         echo "net.ipv4.icmp_echo_ignore_broadcasts = 1" >> /etc/sysctl.d/60-netipv4_sysctl.conf
 
-        sysctl -w net.ipv4.conf.all.accept_redirects=0
+        sysctl -w net.ipv4.conf.all.accept_redirects=0 # 3.3.5
         sysctl -w net.ipv4.conf.default.accept_redirects=0
         sysctl -w net.ipv4.route.flush=1
 
@@ -2266,27 +2269,27 @@ else
         sysctl -w net.ipv6.conf.default.accept_redirects=0
         sysctl -w net.ipv6.route.flush=1
 
-        sysctl -w net.ipv4.conf.all.secure_redirects=0
+        sysctl -w net.ipv4.conf.all.secure_redirects=0 # 3.3.6
         sysctl -w net.ipv4.conf.default.secure_redirects=0
         sysctl -w net.ipv4.route.flush=1
 
-        sysctl -w net.ipv4.conf.all.rp_filter=1
+        sysctl -w net.ipv4.conf.all.rp_filter=1 # 3.3.7
         sysctl -w net.ipv4.conf.default.rp_filter=1
         sysctl -w net.ipv4.route.flush=1
 
-        sysctl -w net.ipv4.conf.all.accept_source_route=0
+        sysctl -w net.ipv4.conf.all.accept_source_route=0 # 3.3.8
         sysctl -w net.ipv4.conf.default.accept_source_route=0
         sysctl -w net.ipv4.route.flush=1
 
-        sysctl -w net.ipv4.conf.all.log_martians=1
+        sysctl -w net.ipv4.conf.all.log_martians=1 # 3.3.9
         sysctl -w net.ipv4.conf.default.log_martians=1
         sysctl -w net.ipv4.route.flush=1
 
-        sysctl -w net.ipv4.tcp_syncookies=1
+        sysctl -w net.ipv4.tcp_syncookies=1 # 3.3.10
         sysctl -w net.ipv4.route.flush=1
         sysctl -w net.ipv4.ip_forward=0
 
-        sysctl -w net.ipv6.conf.all.accept_ra=0
+        sysctl -w net.ipv6.conf.all.accept_ra=0 # 3.3.11
         sysctl -w net.ipv6.conf.default.accept_ra=0
         sysctl -w net.ipv6.route.flush=1
 
@@ -2308,6 +2311,11 @@ else
         ufw default deny incoming
         ufw default deny outgoing
         ufw default deny routed
+
+echo "install dccp /bin/true" > /etc/modprobe.d/dccp # 3.2.1
+echo "install tipc /bin/true" > /etc/modprobe.d/tipc # 3.2.2
+echo "install rds /bin/true" > /etc/modprobe.d/rds # 3.2.3
+echo "install sctp /bin/true" > /etc/modprobe.d/sctp # 3.2.4
 
 #!/bin/bash
 
@@ -2731,7 +2739,7 @@ echo "Setting lockout policies in faillock.conf..."
 # --- Section 2: Network Configuration ---
 
 # Disable IPv6 if not required
-echo "Disabling IPv6..."
+echo "Disabling IPv6..." # 3.1.1
 sysctl -w net.ipv6.conf.all.disable_ipv6=1
 sysctl -w net.ipv6.conf.default.disable_ipv6=1
 sysctl -w net.ipv6.conf.lo.disable_ipv6=1
@@ -3237,10 +3245,12 @@ sysctl -w net.ipv4.conf.default.accept_source_route=0
 echo "net.ipv4.conf.all.accept_source_route = 0" >> /etc/sysctl.conf
 echo "net.ipv4.conf.default.accept_source_route = 0" >> /etc/sysctl.conf
 
-sysctl -w net.ipv4.conf.all.send_redirects=0
+sysctl -w net.ipv4.conf.all.send_redirects=0 # 3.3.2
 sysctl -w net.ipv4.conf.default.send_redirects=0
 echo "net.ipv4.conf.all.send_redirects = 0" >> /etc/sysctl.conf
 echo "net.ipv4.conf.default.send_redirects = 0" >> /etc/sysctl.conf
+
+echo "net.ipv4.icmp_ignore_bogus_error_responses = 1" >> /etc/sysctl.conf
 
 # Prevent sysrq key-based debugging
 echo "Disabling sysrq key-based debugging..."
