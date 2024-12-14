@@ -925,9 +925,9 @@ else
 fi
 
 # Optionally, prevent future installation of gdm3
-# sudo apt-mark hold gdm3
+#sudo apt-mark hold gdm3
 # 1.7.2
-#!/usr/bin/env bash#!/usr/bin/env bash
+#!/usr/bin/env bash
 {
 l_output="" l_output2=""
 a_parlist=("kernel.yama.ptrace_scope=1")
