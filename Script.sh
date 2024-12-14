@@ -787,7 +787,8 @@ sysctl fs.suid_dumpable
 #!/bin/bash
 
 # Check if prelink is installed
-if dpkg-query -s prelink &>/dev/null; then#!/usr/bin/env bash
+if dpkg-query -s prelink &>/dev/null; then
+#!/usr/bin/env bash
     {
         l_output="" l_output2=""
         a_parlist=("kernel.yama.ptrace_scope=1")
