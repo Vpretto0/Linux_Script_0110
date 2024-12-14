@@ -1932,27 +1932,24 @@ fi
 {
  module_fix()
  {
- if ! modprobe -n -v "$l_mname" | grep -P -- '^\h*install
-\/bin\/(true|false)'; then
- echo -e " - setting module: \"$l_mname\" to be un-loadable"
- echo -e "install $l_mname /bin/false" >>/etc/modprobe.d/"$l_mname".conf
+ if ! modprobe -n -v "$l_mname" | grep -P -- '^\h*install \/bin\/(true|false)'; then
+    echo -e " - setting module: \"$l_mname\" to be un-loadable"
+    echo -e "install $l_mname /bin/false" >>/etc/modprobe.d/"$l_mname".conf
  fi
  if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e " - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
+    echo -e " - unloading module \"$l_mname\""
+    modprobe -r "$l_mname"
  fi
  if ! grep -Pq -- "^\h*blacklist\h+$l_mname\b" /etc/modprobe.d/*; then
- echo -e " - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mname".conf
+    echo -e " - deny listing \"$l_mname\""
+    echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mname".conf
  fi
  }
  if [ -n "$(find /sys/class/net/*/ -type d -name wireless)" ]; then
- l_dname=$(for driverdir in $(find /sys/class/net/*/ -type d -name
-wireless | xargs -0 dirname); do basename "$(readlink -f
-"$driverdir"/device/driver/module)";done | sort -u)
- for l_mname in $l_dname; do
- module_fix
- done
+    l_dname=$(for driverdir in $(find /sys/class/net/*/ -type d -name wireless | xargs -0 dirname); do basename "$(readlink -f "$driverdir"/device/driver/module)";done | sort -u)
+    for l_mname in $l_dname; do
+        module_fix
+    done
  fi
  }
 #!/usr/bin/env bash
@@ -1989,204 +1986,196 @@ else
 fi
 #!/usr/bin/env bash
 {
- l_mname="dccp" # set module name
- l_mtype="net" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+    l_mname="dccp" # set module name
+    l_mtype="net" # set module type
+    l_mpath="/lib/modules/**/kernel/$l_mtype"
+    l_mpname="$(tr '-' '_' <<< "$l_mname")"
+    l_mndir="$(tr '-' '/' <<< "$l_mname")"
+    module_loadable_fix()
+    {
+    # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in "/etc/modprobe.d"
+    l_loadable="$(modprobe -n -v "$l_mname")"
+    [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P -- "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+    if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+    echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+    echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+    fi
+    }
+        module_loaded_fix()
+    {
+    # If the module is currently loaded, unload the module
+    if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+        echo -e "\n - unloading module \"$l_mname\""
+        modprobe -r "$l_mname"
+        fi
+    }
+    module_deny_fix()
+    {
+    # If the module isn't deny listed, denylist the module
+    if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+        echo -e "\n - deny listing \"$l_mname\""
+        echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+    fi
+    }
+    # Check if the module exists on the system
+    for l_mdir in $l_mpath; do
+    if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+        echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+        module_deny_fix
+        if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+            module_loadable_fix
+            module_loaded_fix
+        fi
+    else
+        echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+    fi
+    done
+    echo -e "\n - remediation of module: \"$l_mname\" complete\n"
 }
 #!/usr/bin/env bash
 {
- l_mname="tipc" # set module name
- l_mtype="net" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+    l_mname="tipc" # set module name
+    l_mtype="net" # set module type
+    l_mpath="/lib/modules/**/kernel/$l_mtype"
+    l_mpname="$(tr '-' '_' <<< "$l_mname")"
+    l_mndir="$(tr '-' '/' <<< "$l_mname")"
+    module_loadable_fix()
+    {
+    # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in "/etc/modprobe.d"
+    l_loadable="$(modprobe -n -v "$l_mname")"
+    [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P -- "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+    if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+        echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+        echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+    fi
+    }
+    module_loaded_fix()
+    {
+    # If the module is currently loaded, unload the module
+    if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+        echo -e "\n - unloading module \"$l_mname\""
+        modprobe -r "$l_mname"
+    fi
+    }
+    module_deny_fix()
+    {
+    # If the module isn't deny listed, denylist the module
+    if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+        echo -e "\n - deny listing \"$l_mname\""
+        echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+    fi
+    }
+    # Check if the module exists on the system
+    for l_mdir in $l_mpath; do
+    if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+        echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+        module_deny_fix
+        if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+            module_loadable_fix
+            module_loaded_fix
+        fi
+    else
+        echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+    fi
+    done
+    echo -e "\n - remediation of module: \"$l_mname\" complete\n"
 }
 #!/usr/bin/env bash
 {
- l_mname="rds" # set module name
- l_mtype="net" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+    l_mname="rds" # set module name
+    l_mtype="net" # set module type
+    l_mpath="/lib/modules/**/kernel/$l_mtype"
+    l_mpname="$(tr '-' '_' <<< "$l_mname")"
+    l_mndir="$(tr '-' '/' <<< "$l_mname")"
+    module_loadable_fix()
+    {
+    # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in "/etc/modprobe.d"
+    l_loadable="$(modprobe -n -v "$l_mname")"
+    [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P -- "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+    if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+        echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+        echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+    fi
+    }
+        module_loaded_fix()
+    {
+    # If the module is currently loaded, unload the module
+    if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+        echo -e "\n - unloading module \"$l_mname\""
+        modprobe -r "$l_mname"
+    fi
+    }
+    module_deny_fix()
+    {
+    # If the module isn't deny listed, denylist the module
+    if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+        echo -e "\n - deny listing \"$l_mname\""
+        echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+    fi
+    }
+        # Check if the module exists on the system
+    for l_mdir in $l_mpath; do
+    if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+        echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+        module_deny_fix
+        if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+            module_loadable_fix
+            module_loaded_fix
+        fi
+    else
+        echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+    fi
+    done
+    echo -e "\n - remediation of module: \"$l_mname\" complete\n"
 }
 
 #!/usr/bin/env bash
 {
- l_mname="sctp" # set module name
- l_mtype="net" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+    l_mname="sctp" # set module name
+    l_mtype="net" # set module type
+    l_mpath="/lib/modules/**/kernel/$l_mtype"
+    l_mpname="$(tr '-' '_' <<< "$l_mname")"
+    l_mndir="$(tr '-' '/' <<< "$l_mname")"
+    module_loadable_fix()
+    {
+    # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in "/etc/modprobe.d"
+    l_loadable="$(modprobe -n -v "$l_mname")"
+    [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P -- "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+    if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+        echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+        echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+    fi
+    }
+        module_loaded_fix()
+    {
+    # If the module is currently loaded, unload the module
+    if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+        echo -e "\n - unloading module \"$l_mname\""
+        modprobe -r "$l_mname"
+    fi
+    }
+        module_deny_fix()
+    {
+    # If the module isn't deny listed, denylist the module
+    if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+        echo -e "\n - deny listing \"$l_mname\""
+        echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+    fi
+    }
+    # Check if the module exists on the system
+    for l_mdir in $l_mpath; do
+    if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+        echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+        module_deny_fix
+        if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+            module_loadable_fix
+            module_loaded_fix
+        fi
+    else
+        echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+    fi
+    done
+    echo -e "\n - remediation of module: \"$l_mname\" complete\n"
 }
 #!/usr/bin/env bash
 
@@ -3432,84 +3421,77 @@ systemctl mask systemd-journal-remote.socket systemd-journal-remote.service
 
 #!/usr/bin/env bash
 {
- l_op2="" l_output2=""
- l_uidmin="$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)"
- file_test_fix()
- {
- l_op2=""
- l_fuser="root"
- l_fgroup="root"
- if [ $(( $l_mode & $perm_mask )) -gt 0 ]; then
- l_op2="$l_op2\n - Mode: \"$l_mode\" should be \"$maxperm\" or more
-restrictive\n - Removing excess permissions"
- chmod "$l_rperms" "$l_fname"
- fi
- if [[ ! "$l_user" =~ $l_auser ]]; then
- l_op2="$l_op2\n - Owned by: \"$l_user\" and should be owned by
-\"${l_auser//|/ or }\"\n - Changing ownership to: \"$l_fuser\""
- chown "$l_fuser" "$l_fname"
- fi
- if [[ ! "$l_group" =~ $l_agroup ]]; then
- l_op2="$l_op2\n - Group owned by: \"$l_group\" and should be group owned by
-\"${l_agroup//|/ or }\"\n - Changing group ownership to: \"$l_fgroup\""
- chgrp "$l_fgroup" "$l_fname"
- fi
- [ -n "$l_op2" ] && l_output2="$l_output2\n - File: \"$l_fname\" is:$l_op2\n"
- }
- unset a_file && a_file=() # clear and initialize array
- # Loop to create array with stat of files that could possibly fail one of the
-audits
- while IFS= read -r -d $'\0' l_file; do
- [ -e "$l_file" ] && a_file+=("$(stat -Lc '%n^%#a^%U^%u^%G^%g' "$l_file")")
- done < <(find -L /var/log -type f \( -perm /0137 -o ! -user root -o ! -group root
-\) -print0)
- while IFS="^" read -r l_fname l_mode l_user l_uid l_group l_gid; do
- l_bname="$(basename "$l_fname")"
- case "$l_bname" in
- lastlog | lastlog.* | wtmp | wtmp.* | wtmp-* | btmp | btmp.* | btmp-* |
-README)
- perm_mask='0113'
- maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
- l_rperms="ug-x,o-wx"
- l_auser="root"
- l_agroup="(root|utmp)"
- file_test_fix
- ;;
- secure | auth.log | syslog | messages)
- perm_mask='0137'
- maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
- l_rperms="u-x,g-wx,o-rwx"
- l_auser="(root|syslog)"
- l_agroup="(root|adm)"
- file_test_fix
- ;;
- SSSD | sssd)
- perm_mask='0117'
- maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
- l_rperms="ug-x,o-rwx"
- l_auser="(root|SSSD)"
- l_agroup="(root|SSSD)"
- file_test_fix
- ;;
- gdm | gdm3)
-Page 747
-Internal Only - General
- perm_mask='0117'
- l_rperms="ug-x,o-rwx"
- maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
- l_auser="root"
- l_agroup="(root|gdm|gdm3)"
- file_test_fix
- ;;
- *.journal | *.journal~)
- perm_mask='0137'
- maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
- l_rperms="u-x,g-wx,o-rwx"
- l_auser="root"
- l_agroup="(root|systemd-journal)"
- file_test_fix
- ;;
- *)
+    l_op2="" l_output2=""
+    l_uidmin="$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)"
+    file_test_fix()
+    {
+    l_op2=""
+    l_fuser="root"
+    l_fgroup="root"
+    if [ $(( $l_mode & $perm_mask )) -gt 0 ]; then
+        l_op2="$l_op2\n - Mode: \"$l_mode\" should be \"$maxperm\" or more restrictive\n - Removing excess permissions"
+        chmod "$l_rperms" "$l_fname"
+    fi
+    if [[ ! "$l_user" =~ $l_auser ]]; then
+        l_op2="$l_op2\n - Owned by: \"$l_user\" and should be owned by \"${l_auser//|/ or }\"\n - Changing ownership to: \"$l_fuser\""
+        chown "$l_fuser" "$l_fname"
+    fi
+    if [[ ! "$l_group" =~ $l_agroup ]]; then
+        l_op2="$l_op2\n - Group owned by: \"$l_group\" and should be group owned by \"${l_agroup//|/ or }\"\n - Changing group ownership to: \"$l_fgroup\""
+        chgrp "$l_fgroup" "$l_fname"
+    fi
+        [ -n "$l_op2" ] && l_output2="$l_output2\n - File: \"$l_fname\" is:$l_op2\n"
+    }
+    unset a_file && a_file=() # clear and initialize array
+    # Loop to create array with stat of files that could possibly fail one of the audits
+    while IFS= read -r -d $'\0' l_file; do
+        [ -e "$l_file" ] && a_file+=("$(stat -Lc '%n^%#a^%U^%u^%G^%g' "$l_file")")
+    done < <(find -L /var/log -type f \( -perm /0137 -o ! -user root -o ! -group root \) -print0)
+    while IFS="^" read -r l_fname l_mode l_user l_uid l_group l_gid; do
+        l_bname="$(basename "$l_fname")"
+    case "$l_bname" in 
+        lastlog | lastlog.* | wtmp | wtmp.* | wtmp-* | btmp | btmp.* | btmp-* | README)
+        perm_mask='0113'
+        maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
+        l_rperms="ug-x,o-wx"
+        l_auser="root"
+        l_agroup="(root|utmp)"
+        file_test_fix
+        ;;
+        secure | auth.log | syslog | messages)
+        perm_mask='0137'
+        maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
+        l_rperms="u-x,g-wx,o-rwx"
+        l_auser="(root|syslog)"
+        l_agroup="(root|adm)"
+        file_test_fix
+        ;;
+        SSSD | sssd)
+        perm_mask='0117'
+        maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
+        l_rperms="ug-x,o-rwx"
+        l_auser="(root|SSSD)"
+        l_agroup="(root|SSSD)"
+        file_test_fix
+        ;;
+
+        gdm | gdm3)
+        perm_mask='0117'
+        l_rperms="ug-x,o-rwx"
+        maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
+        l_auser="root"
+        l_agroup="(root|gdm|gdm3)"
+        file_test_fix
+        ;;
+        *.journal | *.journal~)
+        perm_mask='0137'
+        maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
+        l_rperms="u-x,g-wx,o-rwx"
+        l_auser="root"
+        l_agroup="(root|systemd-journal)"
+        file_test_fix
+        ;;
+        *)
  perm_mask='0137'
  maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
  l_rperms="u-x,g-wx,o-rwx"
