@@ -2752,7 +2752,7 @@ echo "Configuring additional password policies in pwquality.conf..."
 # Ensure account lockout policies
 echo "Setting lockout policies in faillock.conf..."
 {
-    printf "deny = 5\n" 
+    printf "deny = 5\n" #5.3.3.1.1 
     printf "unlock_time = 900\n"
     printf "even_deny_root\n"
     printf "root_unlock_time = 60\n"
