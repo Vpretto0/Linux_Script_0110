@@ -816,7 +816,7 @@ if dpkg-query -s prelink &>/dev/null; then#!/usr/bin/env bash
             done < <(/usr/lib/systemd/systemd-sysctl --cat-config | grep -Po
             '^\h*([^#\n\r]+|#\h*\/[^#\n\r\h]+\.conf\b)')
                 if [ -n "$l_ufwscf" ]; then # Account for systems with UFW (Not covered by systemd-sysctl -
-                    -cat-config)
+                    -cat-config
                     l_kpar="$(grep -Po "^\h*$l_kpname\b" "$l_ufwscf" | xargs)"
                     l_kpar="${l_kpar//\//.}"
                     [ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_ufwscf")
