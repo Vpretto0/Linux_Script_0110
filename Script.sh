@@ -814,10 +814,8 @@ if dpkg-query -s prelink &>/dev/null; then
                         [ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_file")
                     fi
                 fi
-            done < <(/usr/lib/systemd/systemd-sysctl --cat-config | grep -Po
-            '^\h*([^#\n\r]+|#\h*\/[^#\n\r\h]+\.conf\b)')
-                if [ -n "$l_ufwscf" ]; then # Account for systems with UFW (Not covered by systemd-sysctl -
-                    -cat-config  
+            done < <(/usr/lib/systemd/systemd-sysctl --cat-config | grep -Po '^\h*([^#\n\r]+|#\h*\/[^#\n\r\h]+\.conf\b)')
+                if [ -n "$l_ufwscf" ]; then # Account for systems with UFW (Not covered by systemd-sysctl --cat-config  )
                     l_kpar="$(grep -Po "^\h*$l_kpname\b" "$l_ufwscf" | xargs)"
                     l_kpar="${l_kpar//\//.}"
                     [ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_ufwscf")
@@ -826,16 +824,14 @@ if dpkg-query -s prelink &>/dev/null; then
                     while IFS="=" read -r l_fkpname l_fkpvalue; do
                         l_fkpname="${l_fkpname// /}"; l_fkpvalue="${l_fkpvalue// /}"
                         if [ "$l_fkpvalue" = "$l_kpvalue" ]; then
-                            l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_krp\" in \"$(printf
-                            '%s' "${A_out[@]}")\"\n"
+                            l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_krp\" in \"$(printf '%s' "${A_out[@]}")\"\n"
                         else
                             l_output2="$l_output2\n - \"$l_kpname\" is incorrectly set to \"$l_fkpvalue\" in
                             \"$(printf '%s' "${A_out[@]}")\" and should have a value of: \"$l_kpvalue\"\n"
                         fi
                     done < <(grep -Po -- "^\h*$l_kpname\h*=\h*\H+" "${A_out[@]}")
                 else
-                    l_output2="$l_output2\n - \"$l_kpname\" is not set in an included file\n ** Note:
-                    \"$l_kpname\" May be set in a file that's ignored by load procedure **\n"
+                    l_output2="$l_output2\n - \"$l_kpname\" is not set in an included file\n ** Note: \"$l_kpname\" May be set in a file that's ignored by load procedure **\n"
                 fi
             }
             while IFS="=" read -r l_kpname l_kpvalue; do # Assess and check parameters
