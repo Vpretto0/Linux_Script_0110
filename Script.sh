@@ -3,407 +3,407 @@
 echo " ____                        _ _                  _         ____ _ _               
 |  _ \ __ _ _ __   __ _  ___(_) |_ ___  ___    __| | ___   / ___(_) |__   ___ _ __ 
 | |_) / _\` | '_ \ / _\` |/ __| | __/ _ \/ __|  / _\` |/ _ \ | |   | | '_ \ / _ \ '__|
-|  __/ (_| | |_) | (_| | (__| | || (_) \__ \ | (_| |  __/ | |___| | |_) |  __/ |   
-|_|   \__,_| .__/ \__,_|\___|_|\__\___/|___/  \__,_|\___|  \____|_|_.__/ \___|_|   
-           |_|                                                                     " 
+    |  __/ (_| | |_) | (_| | (__| | || (_) \__ \ | (_| |  __/ | |___| | |_) |  __/ |   
+    |_|   \__,_| .__/ \__,_|\___|_|\__\___/|___/  \__,_|\___|  \____|_|_.__/ \___|_|   
+    |_|                                                                     " 
 
 #!/usr/bin/env bash
 {
- l_mname="cramfs" # set module name
- l_mtype="fs" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
-}
-{
- l_mname="freevxfs" # set module name
- l_mtype="fs" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
-}
-{
- l_mname="hfs" # set module name
- l_mtype="fs" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
-}
-{
- l_mname="hfsplus" # set module name
- l_mtype="fs" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
-}
-{
- l_mname="jffs2" # set module name
- l_mtype="fs" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
-}
-{
- l_mname="squashfs" # set module name
- l_mtype="fs" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
-}
-{
- l_mname="udf" # set module name
- l_mtype="fs" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
-}
-{
- l_mname="usb-storage" # set module name
- l_mtype="drivers" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
-}
-audit_tmp_mount() {
-    echo "Auditing /tmp mount..."
-    findmnt -kn /tmp
-}
+    l_mname="cramfs" # set module name
+    l_mtype="fs" # set module type
+    l_mpath="/lib/modules/**/kernel/$l_mtype"
+    l_mpname="$(tr '-' '_' <<< "$l_mname")"
+    l_mndir="$(tr '-' '/' <<< "$l_mname")"
+    module_loadable_fix()
+    {
+        # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+        "/etc/modprobe.d"
+        l_loadable="$(modprobe -n -v "$l_mname")"
+        [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+        "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+        if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+            echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+            echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+        fi
+    }
+    module_loaded_fix()
+    {
+        # If the module is currently loaded, unload the module
+        if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+            echo -e "\n - unloading module \"$l_mname\""
+            modprobe -r "$l_mname"
+        fi
+    }
+    module_deny_fix()
+    {
+        # If the module isn't deny listed, denylist the module
+        if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+            echo -e "\n - deny listing \"$l_mname\""
+            echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+        fi
+    }
+    # Check if the module exists on the system
+    for l_mdir in $l_mpath; do
+        if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+            echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+            module_deny_fix
+            if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+                module_loadable_fix
+                module_loaded_fix
+            fi
+        else
+            echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+            fihttps://downloads.cisecurity.org/#/
+        done
+        echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+    }
+    {
+        l_mname="freevxfs" # set module name
+        l_mtype="fs" # set module type
+        l_mpath="/lib/modules/**/kernel/$l_mtype"
+        l_mpname="$(tr '-' '_' <<< "$l_mname")"
+        l_mndir="$(tr '-' '/' <<< "$l_mname")"
+        module_loadable_fix()
+        {
+            # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+            "/etc/modprobe.d"
+            l_loadable="$(modprobe -n -v "$l_mname")"
+            [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+            "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+            if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+                echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+                echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+            fi
+        }
+        module_loaded_fix()
+        {
+            # If the module is currently loaded, unload the module
+            if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+                echo -e "\n - unloading module \"$l_mname\""
+                modprobe -r "$l_mname"
+            fi
+        }
+        module_deny_fix()
+        {
+            # If the module isn't deny listed, denylist the module
+            if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+                echo -e "\n - deny listing \"$l_mname\""
+                echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+            fi
+        }
+        # Check if the module exists on the system
+        for l_mdir in $l_mpath; do
+            if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+                echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+                module_deny_fix
+                if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+                    module_loadable_fix
+                    module_loaded_fix
+                fi
+            else
+                echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+                fi
+            done
+            echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+        }
+        {
+            l_mname="hfs" # set module name
+            l_mtype="fs" # set module type
+            l_mpath="/lib/modules/**/kernel/$l_mtype"
+            l_mpname="$(tr '-' '_' <<< "$l_mname")"
+            l_mndir="$(tr '-' '/' <<< "$l_mname")"
+            module_loadable_fix()
+            {
+                # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+                "/etc/modprobe.d"
+                l_loadable="$(modprobe -n -v "$l_mname")"
+                [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+                "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+                if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+                    echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+                    echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+                fi
+            }
+            module_loaded_fix()
+            {
+                # If the module is currently loaded, unload the module
+                if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+                    echo -e "\n - unloading module \"$l_mname\""
+                    modprobe -r "$l_mname"
+                fi
+            }
+            module_deny_fix()
+            {
+                # If the module isn't deny listed, denylist the module
+                if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+                    echo -e "\n - deny listing \"$l_mname\""
+                    echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+                fi
+            }
+            # Check if the module exists on the system
+            for l_mdir in $l_mpath; do
+                if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+                    echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+                    module_deny_fix
+                    if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+                        module_loadable_fix
+                        module_loaded_fix
+                    fi
+                else
+                    echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+                    fi
+                done
+                echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+            }
+            {
+                l_mname="hfsplus" # set module name
+                l_mtype="fs" # set module type
+                l_mpath="/lib/modules/**/kernel/$l_mtype"
+                l_mpname="$(tr '-' '_' <<< "$l_mname")"
+                l_mndir="$(tr '-' '/' <<< "$l_mname")"
+                module_loadable_fix()
+                {
+                    # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+                    "/etc/modprobe.d"
+                    l_loadable="$(modprobe -n -v "$l_mname")"
+                    [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+                    "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+                    if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+                        echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+                        echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+                    fi
+                }
+                module_loaded_fix()
+                {
+                    # If the module is currently loaded, unload the module
+                    if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+                        echo -e "\n - unloading module \"$l_mname\""
+                        modprobe -r "$l_mname"
+                    fi
+                }
+                module_deny_fix()
+                {
+                    # If the module isn't deny listed, denylist the module
+                    if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+                        echo -e "\n - deny listing \"$l_mname\""
+                        echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+                    fi
+                }
+                # Check if the module exists on the system
+                for l_mdir in $l_mpath; do
+                    if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+                        echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+                        module_deny_fix
+                        if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+                            module_loadable_fix
+                            module_loaded_fix
+                        fi
+                    else
+                        echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+                        fi
+                    done
+                    echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+                }
+                {
+                    l_mname="jffs2" # set module name
+                    l_mtype="fs" # set module type
+                    l_mpath="/lib/modules/**/kernel/$l_mtype"
+                    l_mpname="$(tr '-' '_' <<< "$l_mname")"
+                    l_mndir="$(tr '-' '/' <<< "$l_mname")"
+                    module_loadable_fix()
+                    {
+                        # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+                        "/etc/modprobe.d"
+                        l_loadable="$(modprobe -n -v "$l_mname")"
+                        [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+                        "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+                        if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+                            echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+                            echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+                        fi
+                    }
+                    module_loaded_fix()
+                    {
+                        # If the module is currently loaded, unload the module
+                        if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+                            echo -e "\n - unloading module \"$l_mname\""
+                            modprobe -r "$l_mname"
+                        fi
+                    }
+                    module_deny_fix()
+                    {
+                        # If the module isn't deny listed, denylist the module
+                        if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+                            echo -e "\n - deny listing \"$l_mname\""
+                            echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+                        fi
+                    }
+                    # Check if the module exists on the system
+                    for l_mdir in $l_mpath; do
+                        if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+                            echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+                            module_deny_fix
+                            if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+                                module_loadable_fix
+                                module_loaded_fix
+                            fi
+                        else
+                            echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+                            fi
+                        done
+                        echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+                    }
+                    {
+                        l_mname="squashfs" # set module name
+                        l_mtype="fs" # set module type
+                        l_mpath="/lib/modules/**/kernel/$l_mtype"
+                        l_mpname="$(tr '-' '_' <<< "$l_mname")"
+                        l_mndir="$(tr '-' '/' <<< "$l_mname")"
+                        module_loadable_fix()
+                        {
+                            # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+                            "/etc/modprobe.d"
+                            l_loadable="$(modprobe -n -v "$l_mname")"
+                            [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+                            "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+                            if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+                                echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+                                echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+                            fi
+                        }
+                        module_loaded_fix()
+                        {
+                            # If the module is currently loaded, unload the module
+                            if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+                                echo -e "\n - unloading module \"$l_mname\""
+                                modprobe -r "$l_mname"
+                            fi
+                        }
+                        module_deny_fix()
+                        {
+                            # If the module isn't deny listed, denylist the module
+                            if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+                                echo -e "\n - deny listing \"$l_mname\""
+                                echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+                            fi
+                        }
+                        # Check if the module exists on the system
+                        for l_mdir in $l_mpath; do
+                            if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+                                echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+                                module_deny_fix
+                                if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+                                    module_loadable_fix
+                                    module_loaded_fix
+                                fi
+                            else
+                                echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+                                fi
+                            done
+                            echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+                        }
+                        {
+                            l_mname="udf" # set module name
+                            l_mtype="fs" # set module type
+                            l_mpath="/lib/modules/**/kernel/$l_mtype"
+                            l_mpname="$(tr '-' '_' <<< "$l_mname")"
+                            l_mndir="$(tr '-' '/' <<< "$l_mname")"
+                            module_loadable_fix()
+                            {
+                                # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+                                "/etc/modprobe.d"
+                                l_loadable="$(modprobe -n -v "$l_mname")"
+                                [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+                                "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+                                if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+                                    echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+                                    echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+                                fi
+                            }
+                            module_loaded_fix()
+                            {
+                                # If the module is currently loaded, unload the module
+                                if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+                                    echo -e "\n - unloading module \"$l_mname\""
+                                    modprobe -r "$l_mname"
+                                fi
+                            }
+                            module_deny_fix()
+                            {
+                                # If the module isn't deny listed, denylist the module
+                                if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+                                    echo -e "\n - deny listing \"$l_mname\""
+                                    echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+                                fi
+                            }
+                            # Check if the module exists on the system
+                            for l_mdir in $l_mpath; do
+                                if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+                                    echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+                                    module_deny_fix
+                                    if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+                                        module_loadable_fix
+                                        module_loaded_fix
+                                    fi
+                                else
+                                    echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+                                    fi
+                                done
+                                echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+                            }
+                            {
+                                l_mname="usb-storage" # set module name
+                                l_mtype="drivers" # set module type
+                                l_mpath="/lib/modules/**/kernel/$l_mtype"
+                                l_mpname="$(tr '-' '_' <<< "$l_mname")"
+                                l_mndir="$(tr '-' '/' <<< "$l_mname")"
+                                module_loadable_fix()
+                                {
+                                    # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+                                    "/etc/modprobe.d"
+                                    l_loadable="$(modprobe -n -v "$l_mname")"
+                                    [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+                                    "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+                                    if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+                                        echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+                                        echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+                                    fi
+                                }
+                                module_loaded_fix()
+                                {
+                                    # If the module is currently loaded, unload the module
+                                    if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+                                        echo -e "\n - unloading module \"$l_mname\""
+                                        modprobe -r "$l_mname"
+                                    fi
+                                }
+                                module_deny_fix()
+                                {
+                                    # If the module isn't deny listed, denylist the module
+                                    if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+                                        echo -e "\n - deny listing \"$l_mname\""
+                                        echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+                                    fi
+                                }
+                                # Check if the module exists on the system
+                                for l_mdir in $l_mpath; do
+                                    if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+                                        echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+                                        module_deny_fix
+                                        if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+                                            module_loadable_fix
+                                            module_loaded_fix
+                                        fi
+                                    else
+                                        echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+                                        fi
+                                    done
+                                    echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+                                }
+                                audit_tmp_mount() {
+                                    echo "Auditing /tmp mount..."
+                                    findmnt -kn /tmp
+                                }
 
 # Function to check if systemd is correctly configured
 audit_systemd_tmp_mount() {
@@ -414,13 +414,13 @@ audit_systemd_tmp_mount() {
 # Function to unmask and enable tmp.mount if needed
 remediate_systemd_tmp_mount() {
     echo "Ensuring systemd is configured to mount /tmp at boot time..."
-    
+
     # Unmask tmp.mount if it's masked
     if systemctl is-enabled tmp.mount | grep -q "masked"; then
         echo "tmp.mount is masked, unmasking..."
         sudo systemctl unmask tmp.mount
     fi
-    
+
     # Enable tmp.mount
     echo "Enabling tmp.mount..."
     sudo systemctl enable tmp.mount
@@ -467,7 +467,7 @@ install_apparmor_utils() {
     sudo apt-get install -y apparmor-utils
 }
 
-# Main function to perform the audit and remediation
+# Main function to perform the audit and remediation 1.3.1.1
 check_apparmor_installed
 
 echo "Audit and remediation complete."
@@ -507,7 +507,7 @@ enable_apparmor_in_bootloader() {
     echo "AppArmor parameters have been added to the bootloader configuration and GRUB has been updated."
 }
 
-# Main function to check and ensure AppArmor is enabled at boot time
+# Main function to check and ensure AppArmor is enabled at boot time 1.3.1.2
 check_apparmor_enabled_in_bootloader
 
 echo "Audit and remediation complete."
@@ -575,7 +575,7 @@ set_profiles_to_complain() {
     apparmor_status | grep -i 'profiles'
 }
 
-# Main function to perform audit and remediation
+# Main function to perform audit and remediation 1.3.1.3 1.3.1.4
 audit_apparmor_profiles
 
 # Optionally remediate by setting profiles to enforce mode
@@ -640,7 +640,7 @@ remediate_apparmor_profiles() {
 # Function to verify no unconfined processes are running
 verify_no_unconfined_processes() {
     echo "Verifying there are no unconfined processes..."
-    
+
     unconfined_processes=$(apparmor_status | grep "unconfined" | wc -l)
 
     if [ "$unconfined_processes" -gt 0 ]; then
@@ -669,9 +669,9 @@ GRUB_CFG="/boot/grub/grub.cfg"
 
 # Check if the GRUB configuration file exists
 if [ ! -f "$GRUB_CFG" ]; then
-  echo "ERROR: GRUB configuration file '$GRUB_CFG' not found!"
- 
- 
+    echo "ERROR: GRUB configuration file '$GRUB_CFG' not found!"
+
+
 fi
 
 # Audit the current ownership and permissions of the GRUB configuration file
@@ -685,34 +685,44 @@ echo "Current group: $current_group"
 
 # Check if the ownership is correct (root:root)
 if [ "$current_owner" != "root" ] || [ "$current_group" != "root" ]; then
-  echo "Setting ownership to root:root for '$GRUB_CFG'..."
-  sudo chown root:root "$GRUB_CFG"
+    echo "Setting ownership to root:root for '$GRUB_CFG'..."
+    sudo chown root:root "$GRUB_CFG"
 else
-  echo "Ownership is already correct."
+    echo "Ownership is already correct."
 fi
 
 # Check if the permissions are correct (0600)
 if [ "$current_permissions" != "600" ]; then
-  echo "Setting permissions to 0600 for '$GRUB_CFG'..."
-  sudo chmod 600 "$GRUB_CFG"
+    echo "Setting permissions to 0600 for '$GRUB_CFG'..."
+    sudo chmod 600 "$GRUB_CFG"
 else
-  echo "Permissions are already set to 0600."
+    echo "Permissions are already set to 0600."
 fi
 
 # Verify the changes
 echo "Updated permissions and ownership of '$GRUB_CFG':"
 stat -c "Access: (%a) Uid: (%u/%U) Gid: (%g/%G)" "$GRUB_CFG"
+
+# 1.4
+echo "Checking bootloader password..."
+grep "^set superusers" /boot/grub/grub.cfg
+awk -F. '/^\s*password/ {print $1"."$2"."$3}' /boot/grub/grub.cfg
+read -p "Does the password need to be generated? (y/n): " respuesta
+if [ respuesta = "y" ]; then
+    echo "you're screwed look at section 1.4"
+fi
+
 #!/bin/bash
 
 # Define the sysctl configuration file
 SYSCTL_FILE="/etc/sysctl.d/60-kernel_sysctl.conf"
 
-# Check if the configuration already exists
+# Check if the configuration already exists (1.5.1)
 if ! grep -q "kernel.randomize_va_space = 2" "$SYSCTL_FILE"; then
-  echo "Setting kernel.randomize_va_space = 2 in $SYSCTL_FILE"
-  printf "%s\n" "kernel.randomize_va_space = 2" | sudo tee -a "$SYSCTL_FILE"
+    echo "Setting kernel.randomize_va_space = 2 in $SYSCTL_FILE"
+    printf "%s\n" "kernel.randomize_va_space = 2" | sudo tee -a "$SYSCTL_FILE"
 else
-  echo "kernel.randomize_va_space = 2 is already set in $SYSCTL_FILE"
+    echo "kernel.randomize_va_space = 2 is already set in $SYSCTL_FILE"
 fi
 
 # Apply the setting immediately
@@ -723,16 +733,16 @@ sudo sysctl -w kernel.randomize_va_space=2
 echo "Verifying kernel.randomize_va_space"
 sysctl kernel.randomize_va_space
 #!/bin/bash
-
+kernel.randomize_va_space=
 # Define the sysctl configuration file
 SYSCTL_FILE="/etc/sysctl.d/60-kernel_sysctl.conf"
 
-# Check if the configuration already exists
+# Check if the configuration already exists (1.5.2)
 if ! grep -q "kernel.yama.ptrace_scope = 1" "$SYSCTL_FILE"; then
-  echo "Setting kernel.yama.ptrace_scope = 1 in $SYSCTL_FILE"
-  printf "%s\n" "kernel.yama.ptrace_scope = 1" | sudo tee -a "$SYSCTL_FILE"
+    echo "Setting kernel.yama.ptrace_scope = 1 in $SYSCTL_FILE"
+    printf "%s\n" "kernel.yama.ptrace_scope = 1" | sudo tee -a "$SYSCTL_FILE"
 else
-  echo "kernel.yama.ptrace_scope = 1 is already set in $SYSCTL_FILE"
+    echo "kernel.yama.ptrace_scope = 1 is already set in $SYSCTL_FILE"
 fi
 
 # Apply the setting immediately
@@ -773,8 +783,74 @@ sysctl fs.suid_dumpable
 #!/bin/bash
 
 # Check if prelink is installed
-if dpkg-query -s prelink &>/dev/null; then
-    echo "Prelink is installed, proceeding with remediation..."
+if dpkg-query -s prelink &>/dev/null; then#!/usr/bin/env bash
+    {
+        l_output="" l_output2=""
+        a_parlist=("kernel.yama.ptrace_scope=1")
+        l_ufwscf="$([ -f /etc/default/ufw ] && awk -F= '/^\s*IPT_SYSCTL=/ {print $2}'
+        /etc/default/ufw)"
+        kernel_parameter_chk()
+        {
+            l_krp="$(sysctl "$l_kpname" | awk -F= '{print $2}' | xargs)" # Check running configuration
+            if [ "$l_krp" = "$l_kpvalue" ]; then
+                l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_krp\" in the running
+                configuration"
+            else
+                l_output2="$l_output2\n - \"$l_kpname\" is incorrectly set to \"$l_krp\" in the running
+                configuration and should have a value of: \"$l_kpvalue\""
+            fi
+            unset A_out; declare -A A_out # Check durable setting (files)
+            while read -r l_out; do
+                if [ -n "$l_out" ]; then
+                    if [[ $l_out =~ ^\s*# ]]; then
+                        l_file="${l_out//# /}"
+                    else
+                        l_kpar="$(awk -F= '{print $1}' <<< "$l_out" | xargs)"
+                        [ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_file")
+                    fi
+                fi
+            done < <(/usr/lib/systemd/systemd-sysctl --cat-config | grep -Po
+            '^\h*([^#\n\r]+|#\h*\/[^#\n\r\h]+\.conf\b)')
+                if [ -n "$l_ufwscf" ]; then # Account for systems with UFW (Not covered by systemd-sysctl -
+                    -cat-config)
+                    l_kpar="$(grep -Po "^\h*$l_kpname\b" "$l_ufwscf" | xargs)"
+                    l_kpar="${l_kpar//\//.}"
+                    [ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_ufwscf")
+                fi
+                if (( ${#A_out[@]} > 0 )); then # Assess output from files and generate output
+                    while IFS="=" read -r l_fkpname l_fkpvalue; do
+                        l_fkpname="${l_fkpname// /}"; l_fkpvalue="${l_fkpvalue// /}"
+                        if [ "$l_fkpvalue" = "$l_kpvalue" ]; then
+                            l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_krp\" in \"$(printf
+                            '%s' "${A_out[@]}")\"\n"
+                        else
+                            l_output2="$l_output2\n - \"$l_kpname\" is incorrectly set to \"$l_fkpvalue\" in
+                            \"$(printf '%s' "${A_out[@]}")\" and should have a value of: \"$l_kpvalue\"\n"
+                        fi
+                    done < <(grep -Po -- "^\h*$l_kpname\h*=\h*\H+" "${A_out[@]}")
+                else
+                    l_output2="$l_output2\n - \"$l_kpname\" is not set in an included file\n ** Note:
+                    \"$l_kpname\" May be set in a file that's ignored by load procedure **\n"
+                fi
+            }
+            while IFS="=" read -r l_kpname l_kpvalue; do # Assess and check parameters
+                l_kpname="${l_kpname// /}"; l_kpvalue="${l_kpvalue// /}"
+                if ! grep -Pqs '^\h*0\b' /sys/module/ipv6/parameters/disable && grep -q '^net.ipv6.' <<<
+                    "$l_kpname"; then
+                    l_output="$l_output\n - IPv6 is disabled on the system, \"$l_kpname\" is not applicable"
+                else
+                    kernel_parameter_chk
+                fi
+            done < <(printf '%s\n' "${a_parlist[@]}")
+            if [ -z "$l_output2" ]; then # Provide output from checks
+                echo -e "\n- Audit Result:\n ** PASS **\n$l_output\n"
+            else
+                echo -e "\n- Audit Result:\n ** FAIL **\n - Reason(s) for audit failure:\n$l_output2\n"
+                [ -n "$l_output" ] && echo -e "\n- Correctly set:\n$l_output\n"
+            fi
+        }
+        echo "Prelink is installed, proceeding with remediation..."
+        # 1.5.4
 
     # Restore binaries to their normal state
     echo "Restoring binaries to normal state..."
@@ -795,7 +871,7 @@ else
 fi
 #!/bin/bash
 
-# Check if Apport is installed and enabled
+# Check if Apport is installed and enabled 1.5.5
 if dpkg-query -s apport &>/dev/null; then
     echo "Apport is installed, checking if it is enabled..."
 
@@ -830,10 +906,10 @@ if dpkg-query -s apport &>/dev/null; then
     # echo "Removed Apport package from the system."
 else
     echo "Apport is not installed on this system."
-fi
-#!/bin/bash
+    fi
+    #!/bin/bash
 
-# Check if gdm3 is installed
+# Check if gdm3 is installed 1.7.1
 if dpkg-query -s gdm3 &>/dev/null; then
     echo "Removing gdm3..."
 
@@ -850,7 +926,73 @@ fi
 
 # Optionally, prevent future installation of gdm3
 # sudo apt-mark hold gdm3
-#!/usr/bin/env bash
+# 1.7.2
+#!/usr/bin/env bash#!/usr/bin/env bash
+{
+l_output="" l_output2=""
+a_parlist=("kernel.yama.ptrace_scope=1")
+l_ufwscf="$([ -f /etc/default/ufw ] && awk -F= '/^\s*IPT_SYSCTL=/ {print $2}'
+/etc/default/ufw)"
+kernel_parameter_chk()
+{
+l_krp="$(sysctl "$l_kpname" | awk -F= '{print $2}' | xargs)" # Check running configuration
+if [ "$l_krp" = "$l_kpvalue" ]; then
+l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_krp\" in the running
+configuration"
+else
+l_output2="$l_output2\n - \"$l_kpname\" is incorrectly set to \"$l_krp\" in the running
+configuration and should have a value of: \"$l_kpvalue\""
+fi
+unset A_out; declare -A A_out # Check durable setting (files)
+while read -r l_out; do
+if [ -n "$l_out" ]; then
+if [[ $l_out =~ ^\s*# ]]; then
+l_file="${l_out//# /}"
+else
+l_kpar="$(awk -F= '{print $1}' <<< "$l_out" | xargs)"
+[ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_file")
+fi
+fi
+done < <(/usr/lib/systemd/systemd-sysctl --cat-config | grep -Po
+'^\h*([^#\n\r]+|#\h*\/[^#\n\r\h]+\.conf\b)')
+if [ -n "$l_ufwscf" ]; then # Account for systems with UFW (Not covered by systemd-sysctl -
+-cat-config)
+l_kpar="$(grep -Po "^\h*$l_kpname\b" "$l_ufwscf" | xargs)"
+l_kpar="${l_kpar//\//.}"
+[ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_ufwscf")
+fi
+if (( ${#A_out[@]} > 0 )); then # Assess output from files and generate output
+while IFS="=" read -r l_fkpname l_fkpvalue; do
+l_fkpname="${l_fkpname// /}"; l_fkpvalue="${l_fkpvalue// /}"
+if [ "$l_fkpvalue" = "$l_kpvalue" ]; then
+l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_krp\" in \"$(printf
+'%s' "${A_out[@]}")\"\n"
+else
+l_output2="$l_output2\n - \"$l_kpname\" is incorrectly set to \"$l_fkpvalue\" in
+\"$(printf '%s' "${A_out[@]}")\" and should have a value of: \"$l_kpvalue\"\n"
+fi
+done < <(grep -Po -- "^\h*$l_kpname\h*=\h*\H+" "${A_out[@]}")
+else
+l_output2="$l_output2\n - \"$l_kpname\" is not set in an included file\n ** Note:
+\"$l_kpname\" May be set in a file that's ignored by load procedure **\n"
+fi
+}
+while IFS="=" read -r l_kpname l_kpvalue; do # Assess and check parameters
+l_kpname="${l_kpname// /}"; l_kpvalue="${l_kpvalue// /}"
+if ! grep -Pqs '^\h*0\b' /sys/module/ipv6/parameters/disable && grep -q '^net.ipv6.' <<<
+"$l_kpname"; then
+l_output="$l_output\n - IPv6 is disabled on the system, \"$l_kpname\" is not applicable"
+else
+kernel_parameter_chk
+fi
+done < <(printf '%s\n' "${a_parlist[@]}")
+if [ -z "$l_output2" ]; then # Provide output from checks
+echo -e "\n- Audit Result:\n ** PASS **\n$l_output\n"
+else
+echo -e "\n- Audit Result:\n ** FAIL **\n - Reason(s) for audit failure:\n$l_output2\n"
+[ -n "$l_output" ] && echo -e "\n- Correctly set:\n$l_output\n"
+fi
+}
 {
     l_pkgoutput=""
     if command -v dpkg-query &> /dev/null; then
@@ -873,20 +1015,20 @@ fi
             echo "Creating profile \"$l_gdmprofile\""
             echo -e "user-db:user\nsystem-db:$l_gdmprofile\nfiledb:/usr/share/$l_gdmprofile/greeter-dconf-defaults" > /etc/dconf/profile/$l_gdmprofile
         fi
-        
+
         # Create dconf database directory if it doesn't exist
         if [ ! -d "/etc/dconf/db/$l_gdmprofile.d/" ]; then
             echo "Creating dconf database directory \"/etc/dconf/db/$l_gdmprofile.d/\""
             mkdir /etc/dconf/db/$l_gdmprofile.d/
         fi
-        
+
         # Enable the banner message
         if ! grep -Piq '^\h*banner-message-enable\h*=\h*true\b' /etc/dconf/db/$l_gdmprofile.d/*; then
             echo "Creating gdm keyfile for machine-wide settings"
             l_kfile="/etc/dconf/db/$l_gdmprofile.d/01-banner-message"
             echo -e "\n[org/gnome/login-screen]\nbanner-message-enable=true" >> "$l_kfile"
         fi
-        
+
         # Set the banner message text
         if ! grep -Piq "^\h*banner-message-text=[\'\"]+\S+" "$l_kfile"; then
             sed -ri "/^\s*banner-message-enable/ a\banner-message-text=$l_bmessage" "$l_kfile"
@@ -896,12 +1038,12 @@ fi
         dconf update
     else
         echo -e "\n\n - GNOME Desktop Manager isn't installed\n - Recommendation is Not Applicable\n - No remediation required\n"
-    fi
-}
-#!/usr/bin/env bash
-{
-    l_gdmprofile="gdm"  # Change this profile name if desired (according to local policy)
-    
+        fi
+    }
+    #!/usr/bin/env bash
+    {
+        l_gdmprofile="gdm"  # Change this profile name if desired (according to local policy)
+
     # Create the profile if it doesn't exist
     if [ ! -f "/etc/dconf/profile/$l_gdmprofile" ]; then
         echo "Creating profile \"$l_gdmprofile\""
@@ -914,24 +1056,26 @@ fi
         mkdir /etc/dconf/db/$l_gdmprofile.d/
     fi
 
+    # 1.7.3
     # Check if the 'disable-user-list' setting is already in place, otherwise add it
     if ! grep -Piq '^\h*disable-user-list\h*=\h*true\b' /etc/dconf/db/$l_gdmprofile.d/*; then
         echo "Creating gdm keyfile for machine-wide settings"
-        
+
         if ! grep -Piq -- '^\h*\[org/gnome/login-screen\]' /etc/dconf/db/$l_gdmprofile.d/*; then
             echo -e "\n[org/gnome/login-screen]\n# Do not show the user list\ndisable-user-list=true" >> /etc/dconf/db/$l_gdmprofile.d/00-loginscreen
         else
             # Append the setting if the section exists
             sed -ri '/^\s*\[org/gnome/login-screen\]/ a\# Do not show the user list\ndisable-user-list=true' $(grep -Pil -- '^\h*\[org/gnome/login-screen\]' /etc/dconf/db/$l_gdmprofile.d/*)
+            fi
         fi
-    fi
-    
+
     # Update the dconf database to apply changes
     dconf update
 }
 #!/usr/bin/env bash
 {
     # Set lock-delay to 5 seconds and idle-delay to 900 seconds
+    # 1.7.4
     gsettings set org.gnome.desktop.screensaver lock-delay 5
     gsettings set org.gnome.desktop.session idle-delay 900
 
@@ -958,6 +1102,8 @@ fi
     # Update dconf settings
     dconf update
 }
+
+# 1.7.5?
 #!/usr/bin/env bash
 {
     # Create the locks directory if it doesn't exist
@@ -971,6 +1117,8 @@ fi
     # Update the system databases
     dconf update
 }
+
+# 1.7.6 1.7.7
 #!/usr/bin/env bash
 {
     l_pkgoutput=""
@@ -992,7 +1140,7 @@ fi
     # Check configuration (If applicable)
     if [ -n "$l_pkgoutput" ]; then
         echo -e "$l_pkgoutput"
-        
+
         # Look for existing settings and set variables if they exist
         l_kfile="$(grep -Prils -- '^\h*automount\b' /etc/dconf/db/*.d)"
         l_kfile2="$(grep -Prils -- '^\h*automount-open\b' /etc/dconf/db/*.d)"
@@ -1064,12 +1212,12 @@ fi
         dconf update
     else
         echo -e "\n - GNOME Desktop Manager package is not installed on the system\n - Recommendation is not applicable"
-    fi
-}
-#!/usr/bin/env bash
-{
-    l_pkgoutput=""
-    l_gpname="local" # Set to desired dconf profile name (default is local)
+        fi
+    }
+    #!/usr/bin/env bash
+    {
+        l_pkgoutput=""
+        l_gpname="local" # Set to desired dconf profile name (default is local)
 
     # Check if GNOME Desktop Manager is installed.
     if command -v dpkg-query &> /dev/null; then
@@ -1085,7 +1233,7 @@ fi
     # Check configuration (If applicable)
     if [ -n "$l_pkgoutput" ]; then
         echo -e "$l_pkgoutput"
-        
+
         # Look for existing settings and set variables if they exist
         l_kfile="$(grep -Prils -- '^\h*automount\b' /etc/dconf/db/*.d)"
         l_kfile2="$(grep -Prils -- '^\h*automount-open\b' /etc/dconf/db/*.d)"
@@ -1141,139 +1289,143 @@ fi
         dconf update
     else
         echo -e "\n - GNOME Desktop Manager package is not installed on the system\n - Recommendation is not applicable"
-    fi
-}
-#!/usr/bin/env bash
-{
- l_pkgoutput="" l_output="" l_output2=""
- # Check if GNOME Desktop Manager is installed. If package isn't
-installed, recommendation is Not Applicable\n
- # determine system's package manager
- if command -v dpkg-query &> /dev/null; then
- l_pq="dpkg-query -s"
- elif command -v rpm &> /dev/null; then
- l_pq="rpm -q"
- fi
- # Check if GDM is installed
- l_pcl="gdm gdm3" # Space separated list of packages to check
- for l_pn in $l_pcl; do
- $l_pq "$l_pn" &> /dev/null && l_pkgoutput="$l_pkgoutput\n - Package:
-\"$l_pn\" exists on the system\n - checking configuration"
- echo -e "$l_pkgoutput"
- done
- # Check configuration (If applicable)
- if [ -n "$l_pkgoutput" ]; then
- echo -e "$l_pkgoutput"
- # Look for existing settings and set variables if they exist
- l_kfile="$(grep -Prils -- '^\h*autorun-never\b' /etc/dconf/db/*.d)"
- # Set profile name based on dconf db directory ({PROFILE_NAME}.d)
- if [ -f "$l_kfile" ]; then
- l_gpname="$(awk -F\/ '{split($(NF-1),a,".");print a[1]}' <<<
-"$l_kfile")"
- fi
- # If the profile name exist, continue checks
- if [ -n "$l_gpname" ]; then
- l_gpdir="/etc/dconf/db/$l_gpname.d"
- # Check if profile file exists
- if grep -Pq -- "^\h*system-db:$l_gpname\b" /etc/dconf/profile/*;
-then
- l_output="$l_output\n - dconf database profile file \"$(grep -Pl
--- "^\h*system-db:$l_gpname\b" /etc/dconf/profile/*)\" exists"
- else
- l_output2="$l_output2\n - dconf database profile isn't set"
- fi
- # Check if the dconf database file exists
- if [ -f "/etc/dconf/db/$l_gpname" ]; then
- l_output="$l_output\n - The dconf database \"$l_gpname\" exists"
- else
- l_output2="$l_output2\n - The dconf database \"$l_gpname\"
-doesn't exist"
- fi
- # check if the dconf database directory exists
- if [ -d "$l_gpdir" ]; then
- l_output="$l_output\n - The dconf directory \"$l_gpdir\" exitst"
- else
- l_output2="$l_output2\n - The dconf directory \"$l_gpdir\"
-doesn't exist"
- fi
- # check autorun-never setting
- if grep -Pqrs -- '^\h*autorun-never\h*=\h*true\b' "$l_kfile"; then
- l_output="$l_output\n - \"autorun-never\" is set to true in:
-Page 207
-Internal Only - General
-\"$l_kfile\""
- else
- l_output2="$l_output2\n - \"autorun-never\" is not set correctly"
- fi
- else
- # Settings don't exist. Nothing further to check
- l_output2="$l_output2\n - \"autorun-never\" is not set"
- fi
- else
- l_output="$l_output\n - GNOME Desktop Manager package is not installed
-on the system\n - Recommendation is not applicable"
- fi
- # Report results. If no failures output in l_output2, we pass
- if [ -z "$l_output2" ]; then
- echo -e "\n- Audit Result:\n ** PASS **\n$l_output\n"
- else
- echo -e "\n- Audit Result:\n ** FAIL **\n - Reason(s) for audit
-failure:\n$l_output2\n"
- [ -n "$l_output" ] && echo -e "\n- Correctly set:\n$l_output\n"
- fi
-}
-#!/usr/bin/env bash
-{
- # Check if GNOME Desktop Manager is installed. If package isn't
-installed, recommendation is Not Applicable\n
- # determine system's package manager
- l_pkgoutput=""
- if command -v dpkg-query &> /dev/null; then
- l_pq="dpkg-query -s"
- elif command -v rpm &> /dev/null; then
- l_pq="rpm -q"
- fi
- # Check if GDM is installed
- l_pcl="gdm gdm3" # Space separated list of packages to check
- for l_pn in $l_pcl; do
- $l_pq "$l_pn" &> /dev/null && l_pkgoutput="$l_pkgoutput\n - Package:
-\"$l_pn\" exists on the system\n - checking configuration"
- done
- # Search /etc/dconf/db/ for [org/gnome/desktop/media-handling] settings)
- l_desktop_media_handling=$(grep -Psir -- '^\h*\[org/gnome/desktop/mediahandling\]' /etc/dconf/db/*)
- if [[ -n "$l_desktop_media_handling" ]]; then
- l_output="" l_output2=""
- l_autorun_setting=$(grep -Psir -- '^\h*autorun-never=true\b'
-/etc/dconf/db/local.d/*)
- # Check for auto-run setting
- if [[ -n "$l_autorun_setting" ]]; then
- l_output="$l_output\n - \"autorun-never\" setting found"
- else
- l_output2="$l_output2\n - \"autorun-never\" setting not found"
- fi
- else
- l_output="$l_output\n - [org/gnome/desktop/media-handling] setting
-not found in /etc/dconf/db/*"
- fi
- # Report results. If no failures output in l_output2, we pass
-[ -n "$l_pkgoutput" ] && echo -e "\n$l_pkgoutput"
- if [ -z "$l_output2" ]; then
- echo -e "\n- Audit Result:\n ** PASS **\n$l_output\n"
- else
- echo -e "\n- Audit Result:\n ** FAIL **\n - Reason(s) for audit
-failure:\n$l_output2\n"
- [ -n "$l_output" ] && echo -e "\n- Correctly set:\n$l_output\n"
- fi
-}
-#!/usr/bin/env bash
-{
-    # List of configuration files to check
-    files=$(grep -Psil -- '^\h*\[xdmcp\]' /etc/{gdm3,gdm}/{custom,daemon}.conf)
+        fi
+    }
+
+    # 1.7.8 + 1.7.9
+    #!/usr/bin/env bash
+    {
+        l_pkgoutput="" l_output="" l_output2=""
+        # Check if GNOME Desktop Manager is installed. If package isn't
+        installed, recommendation is Not Applicable\n
+        # determine system's package manager
+        if command -v dpkg-query &> /dev/null; then
+            l_pq="dpkg-query -s"
+        elif command -v rpm &> /dev/null; then
+            l_pq="rpm -q"
+        fi
+        # Check if GDM is installed
+        l_pcl="gdm gdm3" # Space separated list of packages to check
+        for l_pn in $l_pcl; do
+            $l_pq "$l_pn" &> /dev/null && l_pkgoutput="$l_pkgoutput\n - Package:
+            \"$l_pn\" exists on the system\n - checking configuration"
+            echo -e "$l_pkgoutput"
+        done
+        # Check configuration (If applicable)
+        if [ -n "$l_pkgoutput" ]; then
+            echo -e "$l_pkgoutput"
+            # Look for existing settings and set variables if they exist
+            l_kfile="$(grep -Prils -- '^\h*autorun-never\b' /etc/dconf/db/*.d)"
+            # Set profile name based on dconf db directory ({PROFILE_NAME}.d)
+            if [ -f "$l_kfile" ]; then
+                l_gpname="$(awk -F\/ '{split($(NF-1),a,".");print a[1]}' <<<
+                "$l_kfile")"
+            fi
+            # If the profile name exist, continue checks
+            if [ -n "$l_gpname" ]; then
+                l_gpdir="/etc/dconf/db/$l_gpname.d"
+                # Check if profile file exists
+                if grep -Pq -- "^\h*system-db:$l_gpname\b" /etc/dconf/profile/*;
+                then
+                    l_output="$l_output\n - dconf database profile file \"$(grep -Pl
+                    -- "^\h*system-db:$l_gpname\b" /etc/dconf/profile/*)\" exists"
+                else
+                    l_output2="$l_output2\n - dconf database profile isn't set"
+                fi
+                # Check if the dconf database file exists
+                if [ -f "/etc/dconf/db/$l_gpname" ]; then
+                    l_output="$l_output\n - The dconf database \"$l_gpname\" exists"
+                else
+                    l_output2="$l_output2\n - The dconf database \"$l_gpname\"
+                    doesn't exist"
+                fi
+                # check if the dconf database directory exists
+                if [ -d "$l_gpdir" ]; then
+                    l_output="$l_output\n - The dconf directory \"$l_gpdir\" exitst"
+                else
+                    l_output2="$l_output2\n - The dconf directory \"$l_gpdir\"
+                    doesn't exist"
+                fi
+                # check autorun-never setting
+                if grep -Pqrs -- '^\h*autorun-never\h*=\h*true\b' "$l_kfile"; then
+                    l_output="$l_output\n - \"autorun-never\" is set to true in:
+                    Page 207
+                    Internal Only - General
+                    \"$l_kfile\""
+                else
+                    l_output2="$l_output2\n - \"autorun-never\" is not set correctly"
+                fi
+            else
+                # Settings don't exist. Nothing further to check
+                l_output2="$l_output2\n - \"autorun-never\" is not set"
+                fi
+            else
+                l_output="$l_output\n - GNOME Desktop Manager package is not installed
+                on the system\n - Recommendation is not applicable"
+                fi
+                # Report results. If no failures output in l_output2, we pass
+                if [ -z "$l_output2" ]; then
+                    echo -e "\n- Audit Result:\n ** PASS **\n$l_output\n"
+                else
+                    echo -e "\n- Audit Result:\n ** FAIL **\n - Reason(s) for audit
+                    failure:\n$l_output2\n"
+                    [ -n "$l_output" ] && echo -e "\n- Correctly set:\n$l_output\n"
+                fi
+            }
+            #!/usr/bin/env bash
+            {
+                # Check if GNOME Desktop Manager is installed. If package isn't
+                installed, recommendation is Not Applicable\n
+                # determine system's package manager
+                l_pkgoutput=""
+                if command -v dpkg-query &> /dev/null; then
+                    l_pq="dpkg-query -s"
+                elif command -v rpm &> /dev/null; then
+                    l_pq="rpm -q"
+                fi
+                # Check if GDM is installed
+                l_pcl="gdm gdm3" # Space separated list of packages to check
+                for l_pn in $l_pcl; do
+                    $l_pq "$l_pn" &> /dev/null && l_pkgoutput="$l_pkgoutput\n - Package:
+                    \"$l_pn\" exists on the system\n - checking configuration"
+                done
+                # Search /etc/dconf/db/ for [org/gnome/desktop/media-handling] settings)
+                l_desktop_media_handling=$(grep -Psir -- '^\h*\[org/gnome/desktop/mediahandling\]' /etc/dconf/db/*)
+                if [[ -n "$l_desktop_media_handling" ]]; then
+                    l_output="" l_output2=""
+                    l_autorun_setting=$(grep -Psir -- '^\h*autorun-never=true\b'
+                    /etc/dconf/db/local.d/*)
+                    # Check for auto-run setting
+                    if [[ -n "$l_autorun_setting" ]]; then
+                        l_output="$l_output\n - \"autorun-never\" setting found"
+                    else
+                        l_output2="$l_output2\n - \"autorun-never\" setting not found"
+                    fi
+                else
+                    l_output="$l_output\n - [org/gnome/desktop/media-handling] setting
+                    not found in /etc/dconf/db/*"
+                fi
+                # Report results. If no failures output in l_output2, we pass
+                [ -n "$l_pkgoutput" ] && echo -e "\n$l_pkgoutput"
+                if [ -z "$l_output2" ]; then
+                    echo -e "\n- Audit Result:\n ** PASS **\n$l_output\n"
+                else
+                    echo -e "\n- Audit Result:\n ** FAIL **\n - Reason(s) for audit
+                    failure:\n$l_output2\n"
+                    [ -n "$l_output" ] && echo -e "\n- Correctly set:\n$l_output\n"
+                fi
+            }
+
+            # 1.7.10
+            #!/usr/bin/env bash
+            {
+                # List of configuration files to check
+                files=$(grep -Psil -- '^\h*\[xdmcp\]' /etc/{gdm3,gdm}/{custom,daemon}.conf)
 
     # Loop through each file returned by the audit
     while IFS= read -r l_file; do
         echo "Processing file: $l_file"
-        
+
         # Check if the file contains the 'Enable=true' line under [xdmcp] block
         if grep -Pq -- '^\s*Enable\s*=\s*true' "$l_file"; then
             # Remove or comment out the Enable=true line
@@ -1290,7 +1442,7 @@ failure:\n$l_output2\n"
 # Ensure the script is run with superuser privileges
 if [[ "$EUID" -ne 0 ]]; then
     echo "Please run as root."
-    
+
 fi
 
 
@@ -1325,7 +1477,7 @@ systemctl disable slapd
 # 2.1.8(new) Ensure message access server servicesa are not in use                      [✓]
 systemctl stop dovecot.socket dovecot.service
 systemctl mask dovecot-imapd dovecot-pop3d #cambié purge por disable
-    #nothing shoud be returned
+#nothing shoud be returned
 
 # 2.1.9(.8 before) Ensure nfs server services are not in use                            [✓]
 systemctl stop nfs-server
@@ -1338,8 +1490,8 @@ systemctl mask ypserv.service
 # 2.1.11(new) Ensure print services are not in use                                      [x]
 # systemctl stop cups.socket cups.service
 # systemctl mask cups.socket cups.service
-        #dehabilitado, porque es un servicio para acceder a impresoras en red, 
-                                                                    #pero puedo
+#dehabilitado, porque es un servicio para acceder a impresoras en red, 
+#pero puedo
 
 # 2.1.12(.9 before) Ensure rpcbind services are not in use                              [✓]
 systemctl stop rpcbind
@@ -1378,7 +1530,7 @@ systemctl stop x11-common
 systemctl disable x11-common
 
 # 2.1.21(.17 before) Ensure mail transfer agent is configured for local-only mode       [✓]
-        # Configuring postfix to only listen on the loopback interface (localhost)
+# Configuring postfix to only listen on the loopback interface (localhost)
 if systemctl is-active --quiet postfix; then
     postconf -e 'inet_interfaces = loopback-only'
     systemctl restart postfix
@@ -1417,7 +1569,7 @@ if [[ "$is_virtual" == "none" ]]; then
     echo "System is physical or no host-based sync available, continuing with remediation."
 else
     echo "Virtual system with possible host-based time synchronization. Please verify host sync settings. Exiting."
-    
+
 fi
 
 # Check if chrony or systemd-timesyncd is installed and active
@@ -1440,7 +1592,7 @@ elif [[ "$chrony_status" == "active" ]]; then
 elif [[ "$timesyncd_status" == "active" ]]; then
     echo "Only systemd-timesyncd is active. Removing chrony if installed."
     apt purge -y chrony && apt autoremove -y
-fi
+    fi
 
 # Verification
 chrony_status=$(systemctl is-active chrony 2>/dev/null)
@@ -1463,7 +1615,7 @@ if [[ "$chrony_status" == "active" ]]; then
     echo "Chrony is active; stopping and masking systemd-timesyncd."
     systemctl stop systemd-timesyncd.service
     systemctl mask systemd-timesyncd.service
-  
+
 elif [[ "$timesyncd_status" == "inactive" ]]; then
     echo "systemd-timesyncd is inactive; ensuring it is configured correctly."
 fi
@@ -1534,10 +1686,10 @@ fi
 
 # Define the authorized NTP servers
 AUTHORIZED_SERVERS=(
-    "pool time.nist.gov iburst maxsources 4"
-    "server time-a-g.nist.gov iburst"
-    "server 132.163.97.3 iburst"
-    "server time-d-b.nist.gov iburst"
+"pool time.nist.gov iburst maxsources 4"
+"server time-a-g.nist.gov iburst"
+"server 132.163.97.3 iburst"
+"server time-d-b.nist.gov iburst"
 )
 
 # Define the chrony configuration file path
@@ -1604,8 +1756,8 @@ if ps -ef | awk '(/[c]hronyd/ && $1!="_chrony") { print $1 }' | grep -q '.'; the
     fi
 else
     echo "chronyd is already running as $CHRONY_USER. No action needed."
-fi
-#!/usr/bin/env bash
+    fi
+    #!/usr/bin/env bash
 
 # Check if chrony service is installed and in use
 if systemctl list-unit-files | grep -q '^chrony\.service'; then
@@ -1632,8 +1784,8 @@ if systemctl list-unit-files | grep -q '^chrony\.service'; then
 else
     echo "chrony service is not installed or another time synchronization service is in use."
     echo "Please install chrony or ensure the correct time synchronization service is in place."
-fi
-#!/usr/bin/env bash
+    fi
+    #!/usr/bin/env bash
 
 # Check if cron is installed and enabled
 cron_service=$(systemctl list-unit-files | awk '$1~/^crond?\.service/{print $1}')
@@ -1665,8 +1817,8 @@ if [ -n "$cron_service" ]; then
 else
     echo "Cron service is not installed or another job scheduler is in use."
     echo "Please install cron or use an alternative scheduling method as per your local policy."
-fi
-#!/usr/bin/env bash
+    fi
+    #!/usr/bin/env bash
 
 # Path to the cron.monthly directory
 cron_monthly_dir="/etc/cron.monthly"
@@ -1686,7 +1838,7 @@ if [[ "$current_permissions" == "$expected_permissions" ]]; then
     echo "Permissions and ownership are correctly set."
 else
     echo "Permissions or ownership are incorrect. Applying correct settings..."
-    
+
     # Set correct ownership and permissions
     chown root:root "$cron_monthly_dir"
     chmod og-rwx "$cron_monthly_dir"
@@ -1713,7 +1865,7 @@ if [[ "$current_permissions" == "$expected_permissions" ]]; then
     echo "Permissions and ownership are correctly set."
 else
     echo "Permissions or ownership are incorrect. Applying correct settings..."
-    
+
     # Set correct ownership and permissions
     chown root:root "$cron_d_dir"
     chmod og-rwx "$cron_d_dir"
@@ -1727,7 +1879,7 @@ if [ ! -e "/etc/cron.allow" ]; then
     # Create /etc/cron.allow if it doesn't exist
     touch /etc/cron.allow
     echo "/etc/cron.allow file created."
-fi
+    fi
 
 # Set ownership and permissions for /etc/cron.allow
 chown root:root /etc/cron.allow
@@ -1778,31 +1930,31 @@ fi
 }
 #!/usr/bin/env bash
 {
- module_fix()
- {
- if ! modprobe -n -v "$l_mname" | grep -P -- '^\h*install
-\/bin\/(true|false)'; then
- echo -e " - setting module: \"$l_mname\" to be un-loadable"
- echo -e "install $l_mname /bin/false" >>/etc/modprobe.d/"$l_mname".conf
- fi
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e " - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- if ! grep -Pq -- "^\h*blacklist\h+$l_mname\b" /etc/modprobe.d/*; then
- echo -e " - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mname".conf
- fi
- }
- if [ -n "$(find /sys/class/net/*/ -type d -name wireless)" ]; then
- l_dname=$(for driverdir in $(find /sys/class/net/*/ -type d -name
-wireless | xargs -0 dirname); do basename "$(readlink -f
-"$driverdir"/device/driver/module)";done | sort -u)
- for l_mname in $l_dname; do
- module_fix
- done
- fi
- }
+    module_fix()
+    {
+        if ! modprobe -n -v "$l_mname" | grep -P -- '^\h*install
+            \/bin\/(true|false)'; then
+            echo -e " - setting module: \"$l_mname\" to be un-loadable"
+            echo -e "install $l_mname /bin/false" >>/etc/modprobe.d/"$l_mname".conf
+        fi
+        if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+            echo -e " - unloading module \"$l_mname\""
+            modprobe -r "$l_mname"
+        fi
+        if ! grep -Pq -- "^\h*blacklist\h+$l_mname\b" /etc/modprobe.d/*; then
+            echo -e " - deny listing \"$l_mname\""
+            echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mname".conf
+        fi
+    }
+    if [ -n "$(find /sys/class/net/*/ -type d -name wireless)" ]; then
+        l_dname=$(for driverdir in $(find /sys/class/net/*/ -type d -name
+        wireless | xargs -0 dirname); do basename "$(readlink -f
+        "$driverdir"/device/driver/module)";done | sort -u)
+        for l_mname in $l_dname; do
+            module_fix
+        done
+    fi
+}
 #!/usr/bin/env bash
 
 # Check if the 'bluez' package is installed
@@ -1818,7 +1970,7 @@ if dpkg-query -s bluez &>/dev/null; then
         echo "'bluetooth.service' has been stopped and masked."
     else
         echo "'bluetooth.service' is not enabled."
-    fi
+        fi
 
     # Check if 'bluetooth.service' is active
     if systemctl is-active bluetooth.service &>/dev/null && systemctl is-active bluetooth.service | grep -q '^active'; then
@@ -1826,7 +1978,7 @@ if dpkg-query -s bluez &>/dev/null; then
         # Stop bluetooth.service if active
         systemctl stop bluetooth.service
         echo "'bluetooth.service' has been stopped."
-    fi
+        fi
 
     # Remove bluez package if it is not required by any other dependencies
     apt-get remove --purge -y bluez
@@ -1834,329 +1986,329 @@ if dpkg-query -s bluez &>/dev/null; then
 
 else
     echo "'bluez' package is not installed on the system."
-fi
-#!/usr/bin/env bash
-{
- l_mname="dccp" # set module name
- l_mtype="net" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
-}
-#!/usr/bin/env bash
-{
- l_mname="tipc" # set module name
- l_mtype="net" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
-}
-#!/usr/bin/env bash
-{
- l_mname="rds" # set module name
- l_mtype="net" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
-}
-
-#!/usr/bin/env bash
-{
- l_mname="sctp" # set module name
- l_mtype="net" # set module type
- l_mpath="/lib/modules/**/kernel/$l_mtype"
- l_mpname="$(tr '-' '_' <<< "$l_mname")"
- l_mndir="$(tr '-' '/' <<< "$l_mname")"
- module_loadable_fix()
- {
- # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
-"/etc/modprobe.d"
- l_loadable="$(modprobe -n -v "$l_mname")"
- [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
-"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
- if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
- echo -e "\n - setting module: \"$l_mname\" to be not loadable"
- echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- module_loaded_fix()
- {
- # If the module is currently loaded, unload the module
- if lsmod | grep "$l_mname" > /dev/null 2>&1; then
- echo -e "\n - unloading module \"$l_mname\""
- modprobe -r "$l_mname"
- fi
- }
- module_deny_fix()
- {
- # If the module isn't deny listed, denylist the module
- if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
- echo -e "\n - deny listing \"$l_mname\""
- echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
- fi
- }
- # Check if the module exists on the system
- for l_mdir in $l_mpath; do
- if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
- echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
- module_deny_fix
- if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
- module_loadable_fix
- module_loaded_fix
- fi
- else
- echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi
- done
- echo -e "\n - remediation of module: \"$l_mname\" complete\n"
-}
-#!/usr/bin/env bash
-
-{
-    l_output="" l_output2=""
-    a_parlist=("net.ipv4.ip_forward=0" "net.ipv6.conf.all.forwarding=0")
-    l_ufwscf="$([ -f /etc/default/ufw ] && awk -F= '/^\s*IPT_SYSCTL=/ {print $2}' /etc/default/ufw)"
-
-    kernel_parameter_chk() {
-        l_krp="$(sysctl "$l_kpname" | awk -F= '{print $2}' | xargs)"  # Check running configuration
-        if [ "$l_krp" = "$l_kpvalue" ]; then
-            l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_krp\" in the running configuration"
-        else
-            l_output2="$l_output2\n - \"$l_kpname\" is incorrectly set to \"$l_krp\" in the running configuration and should have a value of: \"$l_kpvalue\""
-        fi
-
-        unset A_out
-        declare -A A_out  # Check durable setting (files)
-
-        while read -r l_out; do
-            if [ -n "$l_out" ]; then
-                if [[ $l_out =~ ^\s*# ]]; then
-                    l_file="${l_out//# /}"
-                else
-                    l_kpar="$(awk -F= '{print $1}' <<< "$l_out" | xargs)"
-                    [ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_file")
-                fi
+    fi
+    #!/usr/bin/env bash
+    {
+        l_mname="dccp" # set module name
+        l_mtype="net" # set module type
+        l_mpath="/lib/modules/**/kernel/$l_mtype"
+        l_mpname="$(tr '-' '_' <<< "$l_mname")"
+        l_mndir="$(tr '-' '/' <<< "$l_mname")"
+        module_loadable_fix()
+        {
+            # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+            "/etc/modprobe.d"
+            l_loadable="$(modprobe -n -v "$l_mname")"
+            [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+            "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+            if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+                echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+                echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
             fi
-        done < <(/usr/lib/systemd/systemd-sysctl --cat-config | grep -Po '^\h*([^#\n\r]+|#\h*\/[^#\n\r\h]+\.conf\b)')
-
-        if [ -n "$l_ufwscf" ]; then
-            l_kpar="$(grep -Po "^\h*$l_kpname\b" "$l_ufwscf" | xargs)"
-            l_kpar="${l_kpar//\//.}"
-            [ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_ufwscf")
-        fi
-
-        if (( ${#A_out[@]} > 0 )); then  # Assess output from files and generate output
-            while IFS="=" read -r l_fkpname l_fkpvalue; do
-                l_fkpname="${l_fkpname// /}"; l_fkpvalue="${l_fkpvalue// /}"
-                if [ "$l_fkpvalue" = "$l_kpvalue" ]; then
-                    l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_fkpvalue\" in \"$(printf '%s' "${A_out[@]}")\"\n"
-                else
-                    l_output2="$l_output2\n - \"$l_kpname\" is incorrectly set to \"$l_fkpvalue\" in \"$(printf '%s' "${A_out[@]}")\" and should have a value of: \"$l_kpvalue\"\n"
+        }
+        module_loaded_fix()
+        {
+            # If the module is currently loaded, unload the module
+            if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+                echo -e "\n - unloading module \"$l_mname\""
+                modprobe -r "$l_mname"
+            fi
+        }
+        module_deny_fix()
+        {
+            # If the module isn't deny listed, denylist the module
+            if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+                echo -e "\n - deny listing \"$l_mname\""
+                echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+            fi
+        }
+        # Check if the module exists on the system
+        for l_mdir in $l_mpath; do
+            if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+                echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+                module_deny_fix
+                if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+                    module_loadable_fix
+                    module_loaded_fix
                 fi
-            done < <(grep -Po -- "^\h*$l_kpname\h*=\h*\H+" "${A_out[@]}")
-        else
-            l_output2="$l_output2\n - \"$l_kpname\" is not set in an included file\n ** Note: \"$l_kpname\" May be set in a file that's ignored by load procedure **\n"
+            else
+                echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+                fi
+            done
+            echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+        }
+        #!/usr/bin/env bash
+        {
+            l_mname="tipc" # set module name
+            l_mtype="net" # set module type
+            l_mpath="/lib/modules/**/kernel/$l_mtype"
+            l_mpname="$(tr '-' '_' <<< "$l_mname")"
+            l_mndir="$(tr '-' '/' <<< "$l_mname")"
+            module_loadable_fix()
+            {
+                # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+                "/etc/modprobe.d"
+                l_loadable="$(modprobe -n -v "$l_mname")"
+                [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+                "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+                if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+                    echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+                    echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+                fi
+            }
+            module_loaded_fix()
+            {
+                # If the module is currently loaded, unload the module
+                if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+                    echo -e "\n - unloading module \"$l_mname\""
+                    modprobe -r "$l_mname"
+                fi
+            }
+            module_deny_fix()
+            {
+                # If the module isn't deny listed, denylist the module
+                if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+                    echo -e "\n - deny listing \"$l_mname\""
+                    echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+                fi
+            }
+            # Check if the module exists on the system
+            for l_mdir in $l_mpath; do
+                if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+                    echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+                    module_deny_fix
+                    if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+                        module_loadable_fix
+                        module_loaded_fix
+                    fi
+                else
+                    echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+                    fi
+                done
+                echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+            }
+            #!/usr/bin/env bash
+            {
+                l_mname="rds" # set module name
+                l_mtype="net" # set module type
+                l_mpath="/lib/modules/**/kernel/$l_mtype"
+                l_mpname="$(tr '-' '_' <<< "$l_mname")"
+                l_mndir="$(tr '-' '/' <<< "$l_mname")"
+                module_loadable_fix()
+                {
+                    # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+                    "/etc/modprobe.d"
+                    l_loadable="$(modprobe -n -v "$l_mname")"
+                    [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+                    "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+                    if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+                        echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+                        echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+                    fi
+                }
+                module_loaded_fix()
+                {
+                    # If the module is currently loaded, unload the module
+                    if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+                        echo -e "\n - unloading module \"$l_mname\""
+                        modprobe -r "$l_mname"
+                    fi
+                }
+                module_deny_fix()
+                {
+                    # If the module isn't deny listed, denylist the module
+                    if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+                        echo -e "\n - deny listing \"$l_mname\""
+                        echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+                    fi
+                }
+                # Check if the module exists on the system
+                for l_mdir in $l_mpath; do
+                    if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+                        echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+                        module_deny_fix
+                        if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+                            module_loadable_fix
+                            module_loaded_fix
+                        fi
+                    else
+                        echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+                        fi
+                    done
+                    echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+                }
+
+#!/usr/bin/env bash
+{
+    l_mname="sctp" # set module name
+    l_mtype="net" # set module type
+    l_mpath="/lib/modules/**/kernel/$l_mtype"
+    l_mpname="$(tr '-' '_' <<< "$l_mname")"
+    l_mndir="$(tr '-' '/' <<< "$l_mname")"
+    module_loadable_fix()
+    {
+        # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+        "/etc/modprobe.d"
+        l_loadable="$(modprobe -n -v "$l_mname")"
+        [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+        "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+        if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+            echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+            echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
         fi
     }
-
-    while IFS="=" read -r l_kpname l_kpvalue; do  # Assess and check parameters
-        l_kpname="${l_kpname// /}"; l_kpvalue="${l_kpvalue// /}"
-        if ! grep -Pqs '^\h*0\b' /sys/module/ipv6/parameters/disable && grep -q '^net.ipv6.' <<< "$l_kpname"; then
-            l_output="$l_output\n - IPv6 is disabled on the system, \"$l_kpname\" is not applicable"
-        else
-            kernel_parameter_chk
+    module_loaded_fix()
+    {
+        # If the module is currently loaded, unload the module
+        if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+            echo -e "\n - unloading module \"$l_mname\""
+            modprobe -r "$l_mname"
         fi
-    done < <(printf '%s\n' "${a_parlist[@]}")
+    }
+    module_deny_fix()
+    {
+        # If the module isn't deny listed, denylist the module
+        if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+            echo -e "\n - deny listing \"$l_mname\""
+            echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+        fi
+    }
+    # Check if the module exists on the system
+    for l_mdir in $l_mpath; do
+        if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+            echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+            module_deny_fix
+            if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+                module_loadable_fix
+                module_loaded_fix
+            fi
+        else
+            echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+            fi
+        done
+        echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+    }
+    #!/usr/bin/env bash
 
-    if [ -z "$l_output2" ]; then  # Provide output from checks
-        echo -e "\n- Audit Result:\n ** PASS **\n$l_output\n"
-    else
-        echo -e "\n- Audit Result:\n ** FAIL **\n - Reason(s) for audit failure:\n$l_output2\n"
-        [ -n "$l_output" ] && echo -e "\n- Correctly set:\n$l_output\n"
-    fi
-}  
+    {
+        l_output="" l_output2=""
+        a_parlist=("net.ipv4.ip_forward=0" "net.ipv6.conf.all.forwarding=0")
+        l_ufwscf="$([ -f /etc/default/ufw ] && awk -F= '/^\s*IPT_SYSCTL=/ {print $2}' /etc/default/ufw)"
 
-sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1
-sysctl -w net.ipv4.route.flush=1
-echo "net.ipv4.icmp_echo_ignore_broadcasts = 1" >> /etc/sysctl.d/60-netipv4_sysctl.conf
+        kernel_parameter_chk() {
+            l_krp="$(sysctl "$l_kpname" | awk -F= '{print $2}' | xargs)"  # Check running configuration
+            if [ "$l_krp" = "$l_kpvalue" ]; then
+                l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_krp\" in the running configuration"
+            else
+                l_output2="$l_output2\n - \"$l_kpname\" is incorrectly set to \"$l_krp\" in the running configuration and should have a value of: \"$l_kpvalue\""
+            fi
 
-sysctl -w net.ipv4.conf.all.accept_redirects=0
-sysctl -w net.ipv4.conf.default.accept_redirects=0
-sysctl -w net.ipv4.route.flush=1
+            unset A_out
+            declare -A A_out  # Check durable setting (files)
 
-sysctl -w net.ipv6.conf.all.accept_redirects=0
-sysctl -w net.ipv6.conf.default.accept_redirects=0
-sysctl -w net.ipv6.route.flush=1
+            while read -r l_out; do
+                if [ -n "$l_out" ]; then
+                    if [[ $l_out =~ ^\s*# ]]; then
+                        l_file="${l_out//# /}"
+                    else
+                        l_kpar="$(awk -F= '{print $1}' <<< "$l_out" | xargs)"
+                        [ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_file")
+                    fi
+                fi
+            done < <(/usr/lib/systemd/systemd-sysctl --cat-config | grep -Po '^\h*([^#\n\r]+|#\h*\/[^#\n\r\h]+\.conf\b)')
 
-sysctl -w net.ipv4.conf.all.secure_redirects=0
-sysctl -w net.ipv4.conf.default.secure_redirects=0
-sysctl -w net.ipv4.route.flush=1
+                if [ -n "$l_ufwscf" ]; then
+                    l_kpar="$(grep -Po "^\h*$l_kpname\b" "$l_ufwscf" | xargs)"
+                    l_kpar="${l_kpar//\//.}"
+                    [ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_ufwscf")
+                fi
 
-sysctl -w net.ipv4.conf.all.rp_filter=1
-sysctl -w net.ipv4.conf.default.rp_filter=1
-sysctl -w net.ipv4.route.flush=1
+                if (( ${#A_out[@]} > 0 )); then  # Assess output from files and generate output
+                    while IFS="=" read -r l_fkpname l_fkpvalue; do
+                        l_fkpname="${l_fkpname// /}"; l_fkpvalue="${l_fkpvalue// /}"
+                        if [ "$l_fkpvalue" = "$l_kpvalue" ]; then
+                            l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_fkpvalue\" in \"$(printf '%s' "${A_out[@]}")\"\n"
+                        else
+                            l_output2="$l_output2\n - \"$l_kpname\" is incorrectly set to \"$l_fkpvalue\" in \"$(printf '%s' "${A_out[@]}")\" and should have a value of: \"$l_kpvalue\"\n"
+                        fi
+                    done < <(grep -Po -- "^\h*$l_kpname\h*=\h*\H+" "${A_out[@]}")
+                else
+                    l_output2="$l_output2\n - \"$l_kpname\" is not set in an included file\n ** Note: \"$l_kpname\" May be set in a file that's ignored by load procedure **\n"
+                fi
+            }
 
-sysctl -w net.ipv4.conf.all.accept_source_route=0
-sysctl -w net.ipv4.conf.default.accept_source_route=0
-sysctl -w net.ipv4.route.flush=1
+            while IFS="=" read -r l_kpname l_kpvalue; do  # Assess and check parameters
+                l_kpname="${l_kpname// /}"; l_kpvalue="${l_kpvalue// /}"
+                if ! grep -Pqs '^\h*0\b' /sys/module/ipv6/parameters/disable && grep -q '^net.ipv6.' <<< "$l_kpname"; then
+                    l_output="$l_output\n - IPv6 is disabled on the system, \"$l_kpname\" is not applicable"
+                else
+                    kernel_parameter_chk
+                fi
+            done < <(printf '%s\n' "${a_parlist[@]}")
 
-sysctl -w net.ipv4.conf.all.log_martians=1
-sysctl -w net.ipv4.conf.default.log_martians=1
-sysctl -w net.ipv4.route.flush=1
+            if [ -z "$l_output2" ]; then  # Provide output from checks
+                echo -e "\n- Audit Result:\n ** PASS **\n$l_output\n"
+            else
+                echo -e "\n- Audit Result:\n ** FAIL **\n - Reason(s) for audit failure:\n$l_output2\n"
+                [ -n "$l_output" ] && echo -e "\n- Correctly set:\n$l_output\n"
+            fi
+        }  
 
-sysctl -w net.ipv4.tcp_syncookies=1
-sysctl -w net.ipv4.route.flush=1
-sysctl -w net.ipv4.ip_forward=0
+        sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1
+        sysctl -w net.ipv4.route.flush=1
+        echo "net.ipv4.icmp_echo_ignore_broadcasts = 1" >> /etc/sysctl.d/60-netipv4_sysctl.conf
 
-sysctl -w net.ipv6.conf.all.accept_ra=0
-sysctl -w net.ipv6.conf.default.accept_ra=0
-sysctl -w net.ipv6.route.flush=1
+        sysctl -w net.ipv4.conf.all.accept_redirects=0
+        sysctl -w net.ipv4.conf.default.accept_redirects=0
+        sysctl -w net.ipv4.route.flush=1
+
+        sysctl -w net.ipv6.conf.all.accept_redirects=0
+        sysctl -w net.ipv6.conf.default.accept_redirects=0
+        sysctl -w net.ipv6.route.flush=1
+
+        sysctl -w net.ipv4.conf.all.secure_redirects=0
+        sysctl -w net.ipv4.conf.default.secure_redirects=0
+        sysctl -w net.ipv4.route.flush=1
+
+        sysctl -w net.ipv4.conf.all.rp_filter=1
+        sysctl -w net.ipv4.conf.default.rp_filter=1
+        sysctl -w net.ipv4.route.flush=1
+
+        sysctl -w net.ipv4.conf.all.accept_source_route=0
+        sysctl -w net.ipv4.conf.default.accept_source_route=0
+        sysctl -w net.ipv4.route.flush=1
+
+        sysctl -w net.ipv4.conf.all.log_martians=1
+        sysctl -w net.ipv4.conf.default.log_martians=1
+        sysctl -w net.ipv4.route.flush=1
+
+        sysctl -w net.ipv4.tcp_syncookies=1
+        sysctl -w net.ipv4.route.flush=1
+        sysctl -w net.ipv4.ip_forward=0
+
+        sysctl -w net.ipv6.conf.all.accept_ra=0
+        sysctl -w net.ipv6.conf.default.accept_ra=0
+        sysctl -w net.ipv6.route.flush=1
 
 
 
-apt install ufw
- apt purge iptables-persistent
-  ufw allow proto tcp from any to any port 22
-  systemctl unmask ufw.service
-  systemctl --now enable ufw.service
-  ufw enable
-  ufw allow in on lo
- ufw allow out on lo
- ufw deny in from 127.0.0.0/8
- ufw deny in from ::1
-ufw allow out on all
-#ufw allow in <port>/<tcp or udp protocol>
- #ufw deny in <port>/<tcp or udp protocol>
-  ufw default deny incoming
- ufw default deny outgoing
- ufw default deny routed
- 
+        apt install ufw
+        apt purge iptables-persistent
+        ufw allow proto tcp from any to any port 22
+        systemctl unmask ufw.service
+        systemctl --now enable ufw.service
+        ufw enable
+        ufw allow in on lo
+        ufw allow out on lo
+        ufw deny in from 127.0.0.0/8
+        ufw deny in from ::1
+        ufw allow out on all
+        #ufw allow in <port>/<tcp or udp protocol>
+        #ufw deny in <port>/<tcp or udp protocol>
+        ufw default deny incoming
+        ufw default deny outgoing
+        ufw default deny routed
+
 #!/bin/bash
 
 # Ensure nftables is installed (uncomment if needed)
@@ -2253,7 +2405,7 @@ echo "include \"/etc/nftables.rules\"" | sudo tee -a /etc/nftables.conf > /dev/n
         while IFS=: read -r l_file_mode l_file_owner l_file_group; do
             echo "File: \"$l_file\" mode: \"$l_file_mode\" owner: \"$l_file_owner\" group: \"$l_file_group\""
             l_out2=""
-            
+
             # Determine permission mask and maximum permissions based on group
             [ "$l_file_group" = "$l_ssh_group_name" ] && l_pmask="0137" || l_pmask="0177"
             l_maxperm="$(printf '%o' $((0777 & ~$l_pmask)))"
@@ -2364,8 +2516,8 @@ cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
 
 # Define the changes to be made
 {
-  # Set Banner parameter above any Include and Match entries
-  echo "Banner /etc/issue.net"
+    # Set Banner parameter above any Include and Match entries
+    echo "Banner /etc/issue.net"
 
   # Set Ciphers to unapproved weak Ciphers
   echo "Ciphers -3des-cbc,aes128-cbc,aes192-cbc,aes256-cbc,chacha20-poly1305@openssh.com"
@@ -2445,15 +2597,15 @@ visudo -cf "$SUDOERS_FILE" && echo 'Defaults logfile="/var/log/sudo.log"' | sudo
 echo "Checking and modifying timestamp_timeout if needed..."
 CURRENT_TIMEOUT=$(sudo grep -E '^Defaults.*timestamp_timeout=' "$SUDOERS_FILE" | awk -F'=' '{print $2}')
 if [[ -n "$CURRENT_TIMEOUT" && "$CURRENT_TIMEOUT" -gt 15 ]]; then
-  # If timestamp_timeout is larger than 15, update it to 15
-  sudo sed -i 's/Defaults.*timestamp_timeout=[0-9]*/Defaults timestamp_timeout=15/' "$SUDOERS_FILE"
-  echo "timestamp_timeout modified to 15 minutes."
+    # If timestamp_timeout is larger than 15, update it to 15
+    sudo sed -i 's/Defaults.*timestamp_timeout=[0-9]*/Defaults timestamp_timeout=15/' "$SUDOERS_FILE"
+    echo "timestamp_timeout modified to 15 minutes."
 else
-  # If no timestamp_timeout entry, or it's already <= 15, ensure it's set correctly
-  if [[ -z "$CURRENT_TIMEOUT" || "$CURRENT_TIMEOUT" -le 15 ]]; then
-    echo "Defaults timestamp_timeout=15" | sudo tee -a "$SUDOERS_FILE" > /dev/null
-    echo "timestamp_timeout set to 15 minutes."
-  fi
+    # If no timestamp_timeout entry, or it's already <= 15, ensure it's set correctly
+    if [[ -z "$CURRENT_TIMEOUT" || "$CURRENT_TIMEOUT" -le 15 ]]; then
+        echo "Defaults timestamp_timeout=15" | sudo tee -a "$SUDOERS_FILE" > /dev/null
+        echo "timestamp_timeout set to 15 minutes."
+    fi
 fi
 
 echo "Changes applied successfully."
@@ -2730,10 +2882,6 @@ echo "Configuring IP spoofing protection..."
     echo "nospoof on"
 } >> /etc/host.conf
 
-# Secure shared memory
-echo "Securing shared memory..."
-echo "tmpfs /run/shm tmpfs defaults,noexec,nosuid 0 0" >> /etc/fstab
-mount -o remount,noexec,nosuid /run/shm
 
 # Restrict access to cron and at
 echo "Restricting access to cron and at..."
@@ -2861,27 +3009,63 @@ fi
 
 # --- Section 4: Kernel and Filesystem Security Settings ---
 
-# Disable uncommon filesystems
+# Disable uncommon filesystems: 1.1.1.1, 1.1.1.2, 1.1.1.3, 1.1.1.4, 1.1.1.5, 1.1.1.6, 1.1.1.7
 echo "Disabling uncommon filesystems..."
 for fs in cramfs freevxfs jffs2 hfs hfsplus squashfs udf; do
     echo "install $fs /bin/true" >> /etc/modprobe.d/CIS-uncommon-filesystems.conf
 done
 
+# Restrict mounting of USB storage: 1.1.1.8
+echo "Restricting mounting of USB storage devices..."
+echo "install usb-storage /bin/true" >> /etc/modprobe.d/usb-storage.conf
+
+# 1.1.2.1.1
+if ! findmnt -kn /tmp; then
+    echo "Resolving /tmp not being seperate partition"
+    echo "tmpfs /tmp tmpfs defaults,rw,nosuid,nodev,noexec,relatime 0 0" >> /etc/fstab
+    mount -o remount,noexec,nosuid /tmp
+fi
+
+# 1.1.2.1.2, 1.1.2.1.3, 1.1.2.1.4
+for option in nodev nosuid noexec; do
+    if findmnt -kn /tmp | grep -v "$option"; then
+        awk "{if(/\/tmp/) { print \$1, \$2, \$3, \$4 \",$option\", \$5, \$6 } else { print \$0 }}" /etc/fstab > tmp
+        mv tmp /etc/fstab
+        fi
+    done
+
+# Secure shared memory 1.1.2.2.1
+if ! findmnt -kn /run/shm; then
+    echo "Resolving /run/shm not being seperate partition"
+    echo "tmpfs /run/shm tmpfs defaults,nodev,noexec,nosuid 0 0" >> /etc/fstab
+    mount -o remount,noexec,nosuid /run/shm
+fi
+
+for option in nodev nosuid noexec; do
+    if findmnt -kn /run/shm | grep -v "$option"; then
+        awk "{if(/\/run/shm/) { print \$1, \$2, \$3, \$4 \",$option\", \$5, \$6 } else { print \$0 }}" /etc/fstab > tmp
+        mv tmp /etc/fstab
+        fi
+    done
+
+# 1.2.2.1
+apt update && apt upgrade
+
+
+
 # Restrict core dumps for all users
 echo "Disabling core dumps for all users..."
+# 1.5.3
 echo "* hard core 0" >> /etc/security/limits.conf
 sysctl -w fs.suid_dumpable=0
 echo "fs.suid_dumpable=0" >> /etc/sysctl.conf
 
-# Restrict mounting of USB storage
-echo "Restricting mounting of USB storage devices..."
-echo "install usb-storage /bin/true" >> /etc/modprobe.d/usb-storage.conf
-
 # Enable auditing for all successful and unsuccessful privileged commands
 echo "Enabling auditing for all privileged commands..."
 for file in $(find / -xdev \( -perm -4000 -o -perm -2000 \)); do
-    echo "-a always,exit -F path=$file -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" >> /etc/audit/rules.d/privileged.rules
+    echo "-a always,exit -F path=$filawk '{if(/\/tmp/) { print $1, $2, $3, $4 ",nodev", $5, $6 } else { print $0 }}' teste -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" >> /etc/audit/rules.d/privileged.rules
 done
+
 
 # Reload auditd rules
 augenrules --load
@@ -2891,7 +3075,7 @@ augenrules --load
 # Disable IPv6 if not required
 echo "Disabling IPv6..."
 sysctl -w net.ipv6.conf.all.disable_ipv6=1
-sysctl -w net.ipv6.conf.default.disable_ipv6=1
+sysctl -w net.ipv6.conf.default.disable_ipv6=1/tmp
 echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
 echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
 
@@ -3012,7 +3196,7 @@ echo "Configuring audit rules for identity changes (user/group modifications)...
 # Enable audit rules for privileged command execution
 echo "Enabling audit rules for privileged command executions..."
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f | while read -r file; do
-    echo "-a always,exit -F path=$file -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" >> /etc/audit/rules.d/privileged.rules
+echo "-a always,exit -F path=$file -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" >> /etc/audit/rules.d/privileged.rules
 done
 
 # Apply audit rules
@@ -3521,40 +3705,40 @@ fi
 # 7.2.5 Ensure no duplicate UIDs exist
 print_status "No duplicate UIDs"
 cut -d: -f3 /etc/passwd | sort | uniq -d | while read -r uid; do
-    echo "Duplicate UID $uid found"
+echo "Duplicate UID $uid found"
 done
 
 # 7.2.6 Ensure no duplicate GIDs exist
 print_status "No duplicate GIDs"
 cut -d: -f3 /etc/group | sort | uniq -d | while read -r gid; do
-    echo "Duplicate GID $gid found"
+echo "Duplicate GID $gid found"
 done
 
 # 7.2.7 Ensure no duplicate usernames exist
 print_status "No duplicate usernames"
 cut -d: -f1 /etc/passwd | sort | uniq -d | while read -r user; do
-    echo "Duplicate username $user found"
+echo "Duplicate username $user found"
 done
 
 # 7.2.8 Ensure no duplicate group names exist
 print_status "No duplicate group names"
 cut -d: -f1 /etc/group | sort | uniq -d | while read -r group; do
-    echo "Duplicate group name $group found"
+echo "Duplicate group name $group found"
 done
 
 # 7.2.9 Ensure local interactive user home directories are configured
 print_status "Local interactive user home directories are configured"
 awk -F: '($3 >= 1000 && $7 !~ /nologin|false/) { print $1 " " $6 }' /etc/passwd | while read -r user dir; do
-    if [ ! -d "$dir" ]; then
-        echo "User \"$user\" has no home directory \"$dir\""
-    fi
-    if [ ! -O "$dir" ]; then
-        echo "User \"$user\" does not own home directory \"$dir\""
-    fi
-    dir_perms=$(stat -L -c "%A" "$dir")
-    if [[ "$dir_perms" != drwx------ ]]; then
-        echo "User \"$user\" home directory \"$dir\" permissions are not secure: $dir_perms"
-    fi
+if [ ! -d "$dir" ]; then
+    echo "User \"$user\" has no home directory \"$dir\""
+fi
+if [ ! -O "$dir" ]; then
+    echo "User \"$user\" does not own home directory \"$dir\""
+fi
+dir_perms=$(stat -L -c "%A" "$dir")
+if [[ "$dir_perms" != drwx------ ]]; then
+    echo "User \"$user\" home directory \"$dir\" permissions are not secure: $dir_perms"
+fi
 done
 
 # 7.2.10 Ensure local interactive user dot files access is configured
@@ -3644,15 +3828,15 @@ echo "umask 077" >> /root/.bashrc
 # 5.4.2.7 Ensure system accounts do not have a valid login shell
 print_status "Ensuring system accounts do not have valid login shells"
 awk -F: '($3 < 1000) {print $1}' /etc/passwd | while read -r user; do
-    if [ "$(getent passwd "$user" | cut -d: -f7)" != "/usr/sbin/nologin" ]; then
-        usermod -s /usr/sbin/nologin "$user"
-    fi
+if [ "$(getent passwd "$user" | cut -d: -f7)" != "/usr/sbin/nologin" ]; then
+    usermod -s /usr/sbin/nologin "$user"
+fi
 done
 
 # 5.4.2.8 Ensure accounts without a valid login shell are locked
 print_status "Ensuring accounts without a valid login shell are locked"
 awk -F: '($3 >= 1000 && $7 == "/usr/sbin/nologin") {print $1}' /etc/passwd | while read -r user; do
-    usermod -L "$user"
+usermod -L "$user"
 done
 
 # 5.4.3 Configure User Default Environment
