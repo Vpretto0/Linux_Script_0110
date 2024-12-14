@@ -7,6 +7,10 @@ echo " ____                        _ _                  _         ____ _ _
 |_|   \__,_| .__/ \__,_|\___|_|\__\___/|___/  \__,_|\___|  \____|_|_.__/ \___|_|   
            |_|                                                                     " 
 
+# Está arriba porque creo que es muy importante(pero puede que no)
+# 5.2.1(new) Ensure sudo is installed(?)
+apt install sudo
+
 #!/usr/bin/env bash
 {
  l_mname="cramfs" # set module name
@@ -2408,7 +2412,7 @@ echo "include \"/etc/nftables.rules\"" | sudo tee -a /etc/nftables.conf > /dev/n
 
 #5#!/usr/bin/env bash
 
-# Secure sshd_config file and directory permissions
+#5.1.1 Secure sshd_config file and directory permissions
 {
     chmod u-x,og-rwx /etc/ssh/sshd_config
     chown root:root /etc/ssh/sshd_config
@@ -2425,6 +2429,7 @@ echo "include \"/etc/nftables.rules\"" | sudo tee -a /etc/nftables.conf > /dev/n
 #!/usr/bin/env bash
 
 # Initialize outputs and determine SSH group name
+# 5.1.2
 {
     l_output=""
     l_output2=""
@@ -2485,7 +2490,7 @@ echo "include \"/etc/nftables.rules\"" | sudo tee -a /etc/nftables.conf > /dev/n
 
 #!/usr/bin/env bash
 
-# Define variables and permission mask for sshd_config files
+#5.1.3 Define variables and permission mask for sshd_config files
 {
     l_output=""
     l_output2=""
@@ -2546,67 +2551,67 @@ cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
 
 # Define the changes to be made
 {
-  # Set Banner parameter above any Include and Match entries
+  #5.1.5 Set Banner parameter above any Include and Match entries
   echo "Banner /etc/issue.net"
 
-  # Set Ciphers to unapproved weak Ciphers
+  #5.1.6 Set Ciphers to unapproved weak Ciphers
   echo "Ciphers -3des-cbc,aes128-cbc,aes192-cbc,aes256-cbc,chacha20-poly1305@openssh.com"
 
-  # Set ClientAliveInterval and ClientAliveCountMax parameters
+  #5.1.7 Set ClientAliveInterval and ClientAliveCountMax parameters
   echo "ClientAliveInterval 15"
   echo "ClientAliveCountMax 3"
 
-  # Set DisableForwarding to yes
+  #5.1.8 Set DisableForwarding to yes
   echo "DisableForwarding yes"
 
-  # Set GSSAPIAuthentication to no
+  #5.1.9 Set GSSAPIAuthentication to no
   echo "GSSAPIAuthentication no"
 
-  # Set HostbasedAuthentication to no
+  #5.1.10 Set HostbasedAuthentication to no
   echo "HostbasedAuthentication no"
 
-  # Set IgnoreRhosts to yes
+  #5.1.11 Set IgnoreRhosts to yes
   echo "IgnoreRhosts yes"
 
-  # Set KexAlgorithms to unapproved weak algorithms
+  #5.1.12 Set KexAlgorithms to unapproved weak algorithms
   echo "KexAlgorithms -diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1"
 
-  # Set LoginGraceTime to 60 seconds
+  #5.1.13 Set LoginGraceTime to 60 seconds
   echo "LoginGraceTime 60"
 
-  # Set LogLevel to VERBOSE or INFO
+  #5.1.14 Set LogLevel to VERBOSE or INFO
   echo "LogLevel VERBOSE"
 
-  # Set MACs to unapproved weak MACs
+  #5.1.15 Set MACs to unapproved weak MACs
   echo "MACs -hmac-md5,hmac-md5-96,hmac-ripemd160,hmac-sha1-96,umac64@openssh.com,hmac-md5-etm@openssh.com,hmac-md5-96-etm@openssh.com,hmacripemd160-etm@openssh.com,hmac-sha1-96-etm@openssh.com,umac-64-etm@openssh.com,umac-128-etm@openssh.com"
 
-  # Set MaxAuthTries to 4 or less
+  #5.1.16 Set MaxAuthTries to 4 or less
   echo "MaxAuthTries 4"
 
-  # Set MaxSessions to 10 or less
+  #5.1.17 Set MaxSessions to 10 or less
   echo "MaxSessions 10"
 
-  # Set MaxStartups to 10:30:60 or more restrictive
+  #5.1.18 Set MaxStartups to 10:30:60 or more restrictive
   echo "MaxStartups 10:30:60"
 
-  # Set PermitEmptyPasswords to no
+  #5.1.19 Set PermitEmptyPasswords to no
   echo "PermitEmptyPasswords no"
 
-  # Set PermitRootLogin to no
+  #5.1.20 Set PermitRootLogin to no
   echo "PermitRootLogin no"
 
-  # Set PermitUserEnvironment to no
+  #5.1.21 Set PermitUserEnvironment to no
   echo "PermitUserEnvironment no"
 
-  # Set UsePAM to yes
+  #5.1.22 Set UsePAM to yes
   echo "UsePAM yes"
 
 } >> /etc/ssh/sshd_config
-
 # Restart SSH service to apply changes
 systemctl restart sshd
 
 echo "Changes applied successfully."
+
 
 #!/bin/bash
 
@@ -2615,14 +2620,15 @@ SUDOERS_FILE="/etc/sudoers"
 
 # Use visudo to safely edit the sudoers file with the following changes:
 
-# Add Defaults use_pty
+# 5.2.2 Add Defaults use_pty
 echo "Adding Defaults use_pty..."
 visudo -cf "$SUDOERS_FILE" && echo 'Defaults use_pty' | sudo tee -a "$SUDOERS_FILE" > /dev/null
 
-# Add Defaults logfile="/var/log/sudo.log"
+# 5.2.3 Add Defaults logfile="/var/log/sudo.log"
 echo "Adding Defaults logfile=\"/var/log/sudo.log\"..."
 visudo -cf "$SUDOERS_FILE" && echo 'Defaults logfile="/var/log/sudo.log"' | sudo tee -a "$SUDOERS_FILE" > /dev/null
 
+# 5.2.6 Ensure sudo authentication timeout is not disabled locally
 # Check if timestamp_timeout is greater than 15 minutes and modify it
 echo "Checking and modifying timestamp_timeout if needed..."
 CURRENT_TIMEOUT=$(sudo grep -E '^Defaults.*timestamp_timeout=' "$SUDOERS_FILE" | awk -F'=' '{print $2}')
@@ -2659,6 +2665,7 @@ if ! grep -q "auth required pam_wheel.so use_uid group=${GROUP_NAME}" $PAM_FILE;
     # Make a backup of the original PAM configuration file
     cp $PAM_FILE $PAM_FILE.bak
 
+    # 5.2.7
     # Add the line to the PAM file
     sed -i '/^auth.*pam_wheel.so/ a auth required pam_wheel.so use_uid group='${GROUP_NAME}'' $PAM_FILE
 else
@@ -2675,10 +2682,16 @@ fi
 # Final message
 echo "Access to the 'su' command is now restricted to users in the group ${GROUP_NAME}."
 
+# 5.3.1.1
 sudo apt upgrade -y libpam-runtime
 
+# 5.3.1.2
 apt upgrade -y libpam-modules
+
+# 5.3.1.3
 apt install -y libpam-pwquality
+
+# 5.3.2.1
 pam-auth-update --enable unix
 
 
@@ -2687,7 +2700,7 @@ pam-auth-update --enable unix
 echo "Starting CIS Ubuntu 22.04 LTS Benchmark Extended Configuration..."
 
 # Basic variables for paths
-PWQUALITY_CONF_DIR="/etc/security/pwquality.conf.d"
+PWQUALITY_CONF_DIR="/etc/security/pwquality.conf.d" # 3.3.2.1
 FAILLOCK_CONF="/etc/security/faillock.conf"
 PAM_CONFIGS="/usr/share/pam-configs"
 
@@ -2695,9 +2708,11 @@ PAM_CONFIGS="/usr/share/pam-configs"
 echo "Enabling pam_unix..."
 pam-auth-update --enable unix
 
+
 # --- Section 1: User Authentication and Lockout Policies ---
 
-# Configure and enable pam_faillock for account lockout
+# Configure 5.3.2.2
+# and enable pam_faillock for account lockout
 echo "Configuring pam_faillock for lockout policies..."
 {
     printf "Name: Enable pam_faillock to deny access\n"
@@ -2729,8 +2744,8 @@ mkdir -p $PWQUALITY_CONF_DIR
     printf "Priority: 1024\n"
     printf "Conflicts: cracklib\n"
     printf "Password-Type: Primary\n"
-    printf "Password: requisite pam_pwquality.so retry=3 minlen=14 difok=2 dcredit=-1 ucredit=-1 lcredit=-1 ocredit=-1 maxrepeat=3 maxsequence=3 dictcheck=1 enforcing=1\n"
-} > $PAM_CONFIGS/pwquality
+    printf "Password: requisite pam_pwquality.so retry=3 minlen=14 difok=2 dcredit=-1 ucredit=-1 lcredit=-1 ocredit=-1 maxrepeat=3 maxsequence=3 dictcheck=1 enforcing=1\n" 
+} > $PAM_CONFIGS/pwquality #???? #5.3.2.3 #5.3.3.2.2  5.3.3.2.3  5.3.2.2.4  5.3.3.2.2.5  5.3.3.2.2.6  5.3.3.2.2.7
 
 pam-auth-update --enable pwquality
 
@@ -2747,14 +2762,29 @@ echo "Configuring additional password policies in pwquality.conf..."
     printf "maxsequence = 3\n"
     printf "dictcheck = 1\n"
     printf "enforcing = 1\n"
-} > $PWQUALITY_CONF_DIR/cis_pwquality.conf
+} > $PWQUALITY_CONF_DIR/cis_pwquality.conf #???? #5.3.3.2.2  5.3.3.2.3  5.3.3.2.2.4  5.3.3.2.2.5  5.3.3.2.2.6  5.3.3.2.2.7
+
+# 5.3.3.2.8(new) Enforce password quality is enforced for the root user
+#NO SÉ SI ESTÁ REPETIDO
+{
+ [ ! -d /etc/security/pwquality.conf.d/ ] && mkdir
+/etc/security/pwquality.conf.d/
+ printf '\n%s\n' "enforce_for_root" > /etc/security/pwquality.conf.d/50-
+pwroot.conf
+}
+
+#INTENTO DE 5.3.2.4
+#(new) Ensure pam_pwhistory module is enabled
+
+if grep -P -- '\bpam_pwhistory\.so\b' /usr/share/pam-configs/*
+
 
 # Ensure account lockout policies
 echo "Setting lockout policies in faillock.conf..."
 {
-    printf "deny = 5\n" #5.3.3.1.1 
-    printf "unlock_time = 900\n"
-    printf "even_deny_root\n"
+    printf "deny = 5\n" #5.3.3.1.1
+    printf "unlock_time = 900\n" #5.3.3.2.1
+    printf "even_deny_root\n" # 5.3.3.1.3
     printf "root_unlock_time = 60\n"
 } > $FAILLOCK_CONF
 
@@ -2814,7 +2844,7 @@ chmod 000 /etc/shadow
 chmod 000 /etc/gshadow
 chmod 644 /etc/group
 
-# --- Section 5: SSH Configuration ---
+# --- Section 5: SSH Configuration ????---
 
 echo "Configuring SSH settings for enhanced security..."
 sed -i 's/^#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
