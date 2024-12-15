@@ -1,5 +1,3 @@
-#ANTES DE EMPEZAR: verificar la lista de excpciones de cypath en README 
-
 echo " ____                        _ _                  _         ____ _ _               
 |  _ \ __ _ _ __   __ _  ___(_) |_ ___  ___    __| | ___   / ___(_) |__   ___ _ __ 
 | |_) / _\` | '_ \ / _\` |/ __| | __/ _ \/ __|  / _\` |/ _ \ | |   | | '_ \ / _ \ '__|
@@ -7,9 +5,6 @@ echo " ____                        _ _                  _         ____ _ _
 |_|   \__,_| .__/ \__,_|\___|_|\__\___/|___/  \__,_|\___|  \____|_|_.__/ \___|_|   
            |_|                                                                     " 
 
-# Está arriba porque creo que es muy importante(pero puede que no)
-# 5.2.1(new) Ensure sudo is installed(?)
-apt install sudo
 
 #!/usr/bin/env bash
 {
@@ -57,7 +52,7 @@ apt install sudo
  fi
  else
  echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
- fi #https://downloads.cisecurity.org/#/ 
+ fi
  done
  echo -e "\n - remediation of module: \"$l_mname\" complete\n"
 }
@@ -471,7 +466,7 @@ install_apparmor_utils() {
     sudo apt-get install -y apparmor-utils
 }
 
-# Main function to perform the audit and remediation 1.3.1.1
+# Main function to perform the audit and remediation
 check_apparmor_installed
 
 echo "Audit and remediation complete."
@@ -511,7 +506,7 @@ enable_apparmor_in_bootloader() {
     echo "AppArmor parameters have been added to the bootloader configuration and GRUB has been updated."
 }
 
-# Main function to check and ensure AppArmor is enabled at boot time 1.3.1.2
+# Main function to check and ensure AppArmor is enabled at boot time
 check_apparmor_enabled_in_bootloader
 
 echo "Audit and remediation complete."
@@ -579,7 +574,7 @@ set_profiles_to_complain() {
     apparmor_status | grep -i 'profiles'
 }
 
-# Main function to perform audit and remediation 1.3.1.3 1.3.1.4
+# Main function to perform audit and remediation
 audit_apparmor_profiles
 
 # Optionally remediate by setting profiles to enforce mode
@@ -706,22 +701,12 @@ fi
 # Verify the changes
 echo "Updated permissions and ownership of '$GRUB_CFG':"
 stat -c "Access: (%a) Uid: (%u/%U) Gid: (%g/%G)" "$GRUB_CFG"
-
-# 1.4
-echo "Checking bootloader password..."
-grep "^set superusers" /boot/grub/grub.cfg
-awk -F. '/^\s*password/ {print $1"."$2"."$3}' /boot/grub/grub.cfg
-read -p "Does the password need to be generated? (y/n): " respuesta
-if [ respuesta = "y" ]; then
-    echo "you're screwed look at section 1.4"
-fi
-
 #!/bin/bash
 
 # Define the sysctl configuration file
 SYSCTL_FILE="/etc/sysctl.d/60-kernel_sysctl.conf"
 
-# Check if the configuration already exists (1.5.1)
+# Check if the configuration already exists
 if ! grep -q "kernel.randomize_va_space = 2" "$SYSCTL_FILE"; then
   echo "Setting kernel.randomize_va_space = 2 in $SYSCTL_FILE"
   printf "%s\n" "kernel.randomize_va_space = 2" | sudo tee -a "$SYSCTL_FILE"
@@ -737,11 +722,11 @@ sudo sysctl -w kernel.randomize_va_space=2
 echo "Verifying kernel.randomize_va_space"
 sysctl kernel.randomize_va_space
 #!/bin/bash
-kernel.randomize_va_space=
+
 # Define the sysctl configuration file
 SYSCTL_FILE="/etc/sysctl.d/60-kernel_sysctl.conf"
 
-# Check if the configuration already exists (1.5.2)
+# Check if the configuration already exists
 if ! grep -q "kernel.yama.ptrace_scope = 1" "$SYSCTL_FILE"; then
   echo "Setting kernel.yama.ptrace_scope = 1 in $SYSCTL_FILE"
   printf "%s\n" "kernel.yama.ptrace_scope = 1" | sudo tee -a "$SYSCTL_FILE"
@@ -788,69 +773,7 @@ sysctl fs.suid_dumpable
 
 # Check if prelink is installed
 if dpkg-query -s prelink &>/dev/null; then
-#!/usr/bin/env bash
-    {
-        l_output="" l_output2=""
-        a_parlist=("kernel.yama.ptrace_scope=1")
-        l_ufwscf="$([ -f /etc/default/ufw ] && awk -F= '/^\s*IPT_SYSCTL=/ {print $2}'
-        /etc/default/ufw)"
-        kernel_parameter_chk()
-        {
-            l_krp="$(sysctl "$l_kpname" | awk -F= '{print $2}' | xargs)" # Check running configuration
-            if [ "$l_krp" = "$l_kpvalue" ]; then
-                l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_krp\" in the running
-                configuration"
-            else
-                l_output2="$l_output2\n - \"$l_kpname\" is incorrectly set to \"$l_krp\" in the running
-                configuration and should have a value of: \"$l_kpvalue\""
-            fi
-            unset A_out; declare -A A_out # Check durable setting (files)
-            while read -r l_out; do
-                if [ -n "$l_out" ]; then
-                    if [[ $l_out =~ ^\s*# ]]; then
-                        l_file="${l_out//# /}"
-                    else
-                        l_kpar="$(awk -F= '{print $1}' <<< "$l_out" | xargs)"
-                        [ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_file")
-                    fi
-                fi
-            done < <(/usr/lib/systemd/systemd-sysctl --cat-config | grep -Po '^\h*([^#\n\r]+|#\h*\/[^#\n\r\h]+\.conf\b)')
-                if [ -n "$l_ufwscf" ]; then # Account for systems with UFW (Not covered by systemd-sysctl --cat-config  )
-                    l_kpar="$(grep -Po "^\h*$l_kpname\b" "$l_ufwscf" | xargs)"
-                    l_kpar="${l_kpar//\//.}"
-                    [ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_ufwscf")
-                fi
-                if (( ${#A_out[@]} > 0 )); then # Assess output from files and generate output
-                    while IFS="=" read -r l_fkpname l_fkpvalue; do
-                        l_fkpname="${l_fkpname// /}"; l_fkpvalue="${l_fkpvalue// /}"
-                        if [ "$l_fkpvalue" = "$l_kpvalue" ]; then
-                            l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_krp\" in \"$(printf '%s' "${A_out[@]}")\"\n"
-                        else
-                            l_output2="$l_output2\n - \"$l_kpname\" is incorrectly set to \"$l_fkpvalue\" in
-                            \"$(printf '%s' "${A_out[@]}")\" and should have a value of: \"$l_kpvalue\"\n"
-                        fi
-                    done < <(grep -Po -- "^\h*$l_kpname\h*=\h*\H+" "${A_out[@]}")
-                else
-                    l_output2="$l_output2\n - \"$l_kpname\" is not set in an included file\n ** Note: \"$l_kpname\" May be set in a file that's ignored by load procedure **\n"
-                fi
-            }
-            while IFS="=" read -r l_kpname l_kpvalue; do # Assess and check parameters
-                l_kpname="${l_kpname// /}"; l_kpvalue="${l_kpvalue// /}"
-                if ! grep -Pqs '^\h*0\b' /sys/module/ipv6/parameters/disable && grep -q '^net.ipv6.' <<< "$l_kpname"; then
-                    l_output="$l_output\n - IPv6 is disabled on the system, \"$l_kpname\" is not applicable"
-                else
-                    kernel_parameter_chk
-                fi
-            done < <(printf '%s\n' "${a_parlist[@]}")
-            if [ -z "$l_output2" ]; then # Provide output from checks
-                echo -e "\n- Audit Result:\n ** PASS **\n$l_output\n"
-            else
-                echo -e "\n- Audit Result:\n ** FAIL **\n - Reason(s) for audit failure:\n$l_output2\n"
-                [ -n "$l_output" ] && echo -e "\n- Correctly set:\n$l_output\n"
-            fi
-        }
-        echo "Prelink is installed, proceeding with remediation..."
-        # 1.5.4
+    echo "Prelink is installed, proceeding with remediation..."
 
     # Restore binaries to their normal state
     echo "Restoring binaries to normal state..."
@@ -871,7 +794,7 @@ else
 fi
 #!/bin/bash
 
-# Check if Apport is installed and enabled 1.5.5
+# Check if Apport is installed and enabled
 if dpkg-query -s apport &>/dev/null; then
     echo "Apport is installed, checking if it is enabled..."
 
@@ -909,7 +832,7 @@ else
 fi
 #!/bin/bash
 
-# Check if gdm3 is installed 1.7.1 
+# Check if gdm3 is installed
 if dpkg-query -s gdm3 &>/dev/null; then
     echo "Removing gdm3..."
 
@@ -925,68 +848,8 @@ else
 fi
 
 # Optionally, prevent future installation of gdm3
-#sudo apt-mark hold gdm3
-# 1.7.2
+# sudo apt-mark hold gdm3
 #!/usr/bin/env bash
-{
-l_output="" l_output2=""
-a_parlist=("kernel.yama.ptrace_scope=1")
-l_ufwscf="$([ -f /etc/default/ufw ] && awk -F= '/^\s*IPT_SYSCTL=/ {print $2}' /etc/default/ufw)"
-kernel_parameter_chk()
-{
-    l_krp="$(sysctl "$l_kpname" | awk -F= '{print $2}' | xargs)" # Check running configuration
-    if [ "$l_krp" = "$l_kpvalue" ]; then
-        l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_krp\" in the running configuration"
-    else
-        l_output2="$l_output2\n - \"$l_kpname\" is incorrectly set to \"$l_krp\" in the running configuration and should have a value of: \"$l_kpvalue\""
-    fi
-
-    unset A_out; declare -A A_out # Check durable setting (files)
-    while read -r l_out; do
-    if [ -n "$l_out" ]; then
-        if [[ $l_out =~ ^\s*# ]]; then
-            l_file="${l_out//# /}"
-        else
-        l_kpar="$(awk -F= '{print $1}' <<< "$l_out" | xargs)"
-        [ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_file")
-        fi
-    fi
-    done < <(/usr/lib/systemd/systemd-sysctl --cat-config | grep -Po '^\h*([^#\n\r]+|#\h*\/[^#\n\r\h]+\.conf\b)')
-    if [ -n "$l_ufwscf" ]; then # Account for systems with UFW (Not covered by systemd-sysctl --cat-config)
-        l_kpar="$(grep -Po "^\h*$l_kpname\b" "$l_ufwscf" | xargs)"
-        l_kpar="${l_kpar//\//.}"
-        [ "$l_kpar" = "$l_kpname" ] && A_out+=(["$l_kpar"]="$l_ufwscf")
-    fi
-    if (( ${#A_out[@]} > 0 )); then # Assess output from files and generate output
-        while IFS="=" read -r l_fkpname l_fkpvalue; 
-        do l_fkpname="${l_fkpname// /}"; l_fkpvalue="${l_fkpvalue// /}"
-        if [ "$l_fkpvalue" = "$l_kpvalue" ]; then
-            l_output="$l_output\n - \"$l_kpname\" is correctly set to \"$l_krp\" in \"$(printf '%s' "${A_out[@]}")\"\n"
-        else
-        l_output2="$l_output2\n - \"$l_kpname\" is incorrectly set to \"$l_fkpvalue\" in \"$(printf '%s' "${A_out[@]}")\" and should have a value of: \"$l_kpvalue\"\n"
-        fi
-        done < <(grep -Po -- "^\h*$l_kpname\h*=\h*\H+" "${A_out[@]}")
-    else
-        l_output2="$l_output2\n - \"$l_kpname\" is not set in an included file\n ** Note: \"$l_kpname\" May be set in a file that's ignored by load procedure **\n"
-    fi
-}
-
-    while IFS="=" read -r l_kpname l_kpvalue; do # Assess and check parameters
-    l_kpname="${l_kpname// /}"; l_kpvalue="${l_kpvalue// /}"
-    if ! grep -Pqs '^\h*0\b' /sys/module/ipv6/parameters/disable && grep -q '^net.ipv6.' <<< "$l_kpname"; then
-        l_output="$l_output\n - IPv6 is disabled on the system, \"$l_kpname\" is not applicable"
-    else
-        kernel_parameter_chk
-    fi
-    done < <(printf '%s\n' "${a_parlist[@]}")
-    if [ -z "$l_output2" ]; then # Provide output from checks
-        echo -e "\n- Audit Result:\n ** PASS **\n$l_output\n"
-    else
-        echo -e "\n- Audit Result:\n ** FAIL **\n - Reason(s) for audit failure:\n$l_output2\n"
-        [ -n "$l_output" ] && echo -e "\n- Correctly set:\n$l_output\n"
-    fi
-}
-
 {
     l_pkgoutput=""
     if command -v dpkg-query &> /dev/null; then
@@ -1050,7 +913,6 @@ kernel_parameter_chk()
         mkdir /etc/dconf/db/$l_gdmprofile.d/
     fi
 
-    # 1.7.3
     # Check if the 'disable-user-list' setting is already in place, otherwise add it
     if ! grep -Piq '^\h*disable-user-list\h*=\h*true\b' /etc/dconf/db/$l_gdmprofile.d/*; then
         echo "Creating gdm keyfile for machine-wide settings"
@@ -1069,7 +931,6 @@ kernel_parameter_chk()
 #!/usr/bin/env bash
 {
     # Set lock-delay to 5 seconds and idle-delay to 900 seconds
-    # 1.7.4
     gsettings set org.gnome.desktop.screensaver lock-delay 5
     gsettings set org.gnome.desktop.session idle-delay 900
 
@@ -1096,8 +957,6 @@ kernel_parameter_chk()
     # Update dconf settings
     dconf update
 }
-
-# 1.7.5?
 #!/usr/bin/env bash
 {
     # Create the locks directory if it doesn't exist
@@ -1111,8 +970,6 @@ kernel_parameter_chk()
     # Update the system databases
     dconf update
 }
-
-# 1.7.6 1.7.7
 #!/usr/bin/env bash
 {
     l_pkgoutput=""
@@ -1285,8 +1142,6 @@ kernel_parameter_chk()
         echo -e "\n - GNOME Desktop Manager package is not installed on the system\n - Recommendation is not applicable"
     fi
 }
-
-# 1.7.8 + 1.7.9
 #!/usr/bin/env bash
 {
  l_pkgoutput="" l_output="" l_output2=""
@@ -1409,8 +1264,6 @@ failure:\n$l_output2\n"
  [ -n "$l_output" ] && echo -e "\n- Correctly set:\n$l_output\n"
  fi
 }
-
-            # 1.7.10
 #!/usr/bin/env bash
 {
     # List of configuration files to check
@@ -1439,119 +1292,77 @@ if [[ "$EUID" -ne 0 ]]; then
     
 fi
 
-
-# 2.1.1 Ensure autofs services are not in use                                           [✓]
+# 2.1.1 Ensure autofs services are not in use
 systemctl stop autofs
 systemctl disable autofs
 
-# 2.1.2 Ensure avahi daemon services are not in use                                     [✓]
+# 2.1.2 Ensure avahi daemon services are not in use
 systemctl stop avahi-daemon
 systemctl disable avahi-daemon
 
-# 2.1.3 Ensure dhcp server services are not in use                                      [✓]
+# 2.1.3 Ensure dhcp server services are not in use
 systemctl stop dhcpd
 systemctl disable dhcpd
 
-# 2.1.4 Ensure dns server services are not in use                                       [✓]
+# 2.1.4 Ensure dns server services are not in use
 systemctl stop named
 systemctl disable named
 
-# 2.1.5 Ensure dsnmasq services are not in use                                          [✓]
+# 2.1.5 Ensure dsnmasq services are not in use
 systemctl stop dnsmasq
 systemctl disable dnsmasq
 
-# 2.1.6 Ensure ftp server services are not in use                                       [✓]
-systemctl stop vsftpd
-systemctl disable vsftpd
+# 2.1.6 Ensure ftp server services are not in use
+# systemctl stop vsftpd
+# systemctl disable vsftpd
+            #Special services 
 
-# 2.1.7 Ensure ldap server services are not in use                                      [✓]
+# 2.1.7 Ensure ldap server services are not in use
 systemctl stop slapd
 systemctl disable slapd
 
-# 2.1.8(new) Ensure message access server servicesa are not in use                      [✓]
-systemctl stop dovecot.socket dovecot.service
-systemctl mask dovecot-imapd dovecot-pop3d #cambié purge por disable
-    #nothing shoud be returned
-
-# 2.1.9(.8 before) Ensure nfs server services are not in use                            [✓]
+# 2.1.8 Ensure nfs server services are not in use
 systemctl stop nfs-server
 systemctl disable nfs-server
 
-# 2.1.10(new) Ensure nis server services are not in use                                 [✓]
-systemctl stop ypserv.service
-systemctl mask ypserv.service
-
-# 2.1.11(new) Ensure print services are not in use                                      [x]
-# systemctl stop cups.socket cups.service
-# systemctl mask cups.socket cups.service
-        #dehabilitado, porque es un servicio para acceder a impresoras en red, 
-                                                                    #pero puedo
-
-# 2.1.12(.9 before) Ensure rpcbind services are not in use                              [✓]
+# 2.1.9 Ensure rpcbind services are not in use
 systemctl stop rpcbind
 systemctl disable rpcbind
 
-# 2.1.13(.11 before) Ensure rsync server services are not in use                        [✓]
-systemctl stop rsyncd
-systemctl disable rsyncd
-
-# 2.1.14(.10 before) Ensure samba file server services are not in use                   [✓]
+# 2.1.10 Ensure samba file server services are not in use
 systemctl stop smb
 systemctl disable smb
 
-# 2.1.15(.12 before) Ensure snmp services are not in use                                [✓]
+# 2.1.11 Ensure rsync server services are not in use
+systemctl stop rsyncd
+systemctl disable rsyncd
+
+# 2.1.12 Ensure snmp services are not in use
 systemctl stop snmpd
 systemctl disable snmpd
 
-# 2.1.16(.13 before) Ensure tftp server services are not in use                         [✓]
-systemctl stop tftp
-systemctl disable tftp
+# 2.1.13 Ensure tftp server services are not in use
+# systemctl stop tftp
+# systemctl disable tftp
 
-# 2.1.17(new) Ensure web proxy services are not in use                                  [✓]
-systemctl stop squid.service
-apt purge squid
-
-# 2.1.18(.14 before) Ensure web server services are not in use                          [✓]
+# 2.1.14 Ensure web server services are not in use
 systemctl stop httpd
 systemctl disable httpd
 
-# 2.1.19(.15 before) Ensure xinetd services are not in use                              [✓]
+# 2.1.15 Ensure xinetd services are not in use
 systemctl stop xinetd
 systemctl disable xinetd
 
-# 2.1.20(.16 before) Ensure X window server services are not in use                     [✓]
+# 2.1.16 Ensure X window server services are not in use
 systemctl stop x11-common
 systemctl disable x11-common
 
-# 2.1.21(.17 before) Ensure mail transfer agent is configured for local-only mode       [✓]
-        # Configuring postfix to only listen on the loopback interface (localhost)
+# 2.1.17 Ensure mail transfer agent is configured for local-only mode
+# Configuring postfix to only listen on the loopback interface (localhost)
 if systemctl is-active --quiet postfix; then
     postconf -e 'inet_interfaces = loopback-only'
     systemctl restart postfix
 fi
-
-#INTENTO DE MÓDULO 2.2
-#Configure client services:
-
-# 2.2.1 Ensure NIS Client is not installed                                              [ ]
-apt purge nis
-
-# 2.2.2 Ensure rsh client is not installed                                              [ ]
-apt purge rsh-client
-
-# 2.2.3 Ensure talk client is not installed                                             [ ]
-apt purge talk
-
-# 2.2.4 Ensure telnet client is not installed                                           [ ]
-apt purge telnet
-
-# 2.2.5 Ensure ldap client is not installed                                             [ ]
-apt purge ldap-utils
-
-# 2.2.6 Ensure ftp client is not installed                                              [ ]
-apt purge ldap-utils
-
-
 sudo apt install -y ubuntu-desktop
 
 echo "Service hardening complete. Disabled all unnecessary services."
@@ -1567,7 +1378,6 @@ else
 fi
 
 # Check if chrony or systemd-timesyncd is installed and active
-#confirmando que solo uno esté activo
 chrony_status=$(systemctl is-active chrony 2>/dev/null)
 timesyncd_status=$(systemctl is-active systemd-timesyncd 2>/dev/null)
 
@@ -1628,11 +1438,10 @@ mkdir -p /etc/systemd/timesyncd.conf.d
 # Apply custom configuration
 cat <<EOL > "$CONFIG_FILE"
 [Time]
-NTP=time1.google.com time2.google.com   
+NTP=time1.google.com time2.google.com
 FallbackNTP=ntp.ubuntu.com
 EOL
 
- #authorized timeserver
 echo "Custom NTP servers configured in $CONFIG_FILE."
 
 # Restart systemd-timesyncd to apply changes
@@ -1897,14 +1706,11 @@ if [ -e "/etc/cron.allow" ] && [ -e "/etc/cron.deny" ]; then
 else
     echo "Only /etc/cron.allow or no deny file exists, cron.allow will control access."
 fi
-
-# 2.4.2.1 Ensure at is restricted to authorized users
 #!/usr/bin/env bash
 {
     # Check if group 'daemon' exists, otherwise use 'root'
     grep -Pq -- '^daemon\b' /etc/group && l_group="daemon" || l_group="root"
 
-    #audit part
     # Ensure /etc/at.allow exists
     if [ ! -e "/etc/at.allow" ]; then
         touch /etc/at.allow
@@ -1926,35 +1732,36 @@ fi
         echo "/etc/at.deny does not exist, no action required."
     fi
 }
-
-# 3.1.2
 #!/usr/bin/env bash
 {
  module_fix()
  {
- if ! modprobe -n -v "$l_mname" | grep -P -- '^\h*install \/bin\/(true|false)'; then
-    echo -e " - setting module: \"$l_mname\" to be un-loadable"
-    echo -e "install $l_mname /bin/false" >>/etc/modprobe.d/"$l_mname".conf
+ if ! modprobe -n -v "$l_mname" | grep -P -- '^\h*install
+\/bin\/(true|false)'; then
+ echo -e " - setting module: \"$l_mname\" to be un-loadable"
+ echo -e "install $l_mname /bin/false" >>/etc/modprobe.d/"$l_mname".conf
  fi
  if lsmod | grep "$l_mname" > /dev/null 2>&1; then
-    echo -e " - unloading module \"$l_mname\""
-    modprobe -r "$l_mname"
+ echo -e " - unloading module \"$l_mname\""
+ modprobe -r "$l_mname"
  fi
  if ! grep -Pq -- "^\h*blacklist\h+$l_mname\b" /etc/modprobe.d/*; then
-    echo -e " - deny listing \"$l_mname\""
-    echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mname".conf
+ echo -e " - deny listing \"$l_mname\""
+ echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mname".conf
  fi
  }
  if [ -n "$(find /sys/class/net/*/ -type d -name wireless)" ]; then
-    l_dname=$(for driverdir in $(find /sys/class/net/*/ -type d -name wireless | xargs -0 dirname); do basename "$(readlink -f "$driverdir"/device/driver/module)";done | sort -u)
-    for l_mname in $l_dname; do
-        module_fix
-    done
+ l_dname=$(for driverdir in $(find /sys/class/net/*/ -type d -name
+wireless | xargs -0 dirname); do basename "$(readlink -f
+"$driverdir"/device/driver/module)";done | sort -u)
+ for l_mname in $l_dname; do
+ module_fix
+ done
  fi
  }
 #!/usr/bin/env bash
 
-# Check if the 'bluez' package is installed 3.1.3
+# Check if the 'bluez' package is installed
 if dpkg-query -s bluez &>/dev/null; then
     echo "The 'bluez' package is installed."
 
@@ -1986,196 +1793,204 @@ else
 fi
 #!/usr/bin/env bash
 {
-    l_mname="dccp" # set module name
-    l_mtype="net" # set module type
-    l_mpath="/lib/modules/**/kernel/$l_mtype"
-    l_mpname="$(tr '-' '_' <<< "$l_mname")"
-    l_mndir="$(tr '-' '/' <<< "$l_mname")"
-    module_loadable_fix()
-    {
-    # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in "/etc/modprobe.d"
-    l_loadable="$(modprobe -n -v "$l_mname")"
-    [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P -- "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
-    if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
-    echo -e "\n - setting module: \"$l_mname\" to be not loadable"
-    echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
-    fi
-    }
-        module_loaded_fix()
-    {
-    # If the module is currently loaded, unload the module
-    if lsmod | grep "$l_mname" > /dev/null 2>&1; then
-        echo -e "\n - unloading module \"$l_mname\""
-        modprobe -r "$l_mname"
-        fi
-    }
-    module_deny_fix()
-    {
-    # If the module isn't deny listed, denylist the module
-    if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
-        echo -e "\n - deny listing \"$l_mname\""
-        echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
-    fi
-    }
-    # Check if the module exists on the system
-    for l_mdir in $l_mpath; do
-    if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
-        echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
-        module_deny_fix
-        if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
-            module_loadable_fix
-            module_loaded_fix
-        fi
-    else
-        echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
-    fi
-    done
-    echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+ l_mname="dccp" # set module name
+ l_mtype="net" # set module type
+ l_mpath="/lib/modules/**/kernel/$l_mtype"
+ l_mpname="$(tr '-' '_' <<< "$l_mname")"
+ l_mndir="$(tr '-' '/' <<< "$l_mname")"
+ module_loadable_fix()
+ {
+ # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+"/etc/modprobe.d"
+ l_loadable="$(modprobe -n -v "$l_mname")"
+ [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+ if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+ echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+ echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+ fi
+ }
+ module_loaded_fix()
+ {
+ # If the module is currently loaded, unload the module
+ if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+ echo -e "\n - unloading module \"$l_mname\""
+ modprobe -r "$l_mname"
+ fi
+ }
+ module_deny_fix()
+ {
+ # If the module isn't deny listed, denylist the module
+ if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+ echo -e "\n - deny listing \"$l_mname\""
+ echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+ fi
+ }
+ # Check if the module exists on the system
+ for l_mdir in $l_mpath; do
+ if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+ echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+ module_deny_fix
+ if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+ module_loadable_fix
+ module_loaded_fix
+ fi
+ else
+ echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+ fi
+ done
+ echo -e "\n - remediation of module: \"$l_mname\" complete\n"
 }
 #!/usr/bin/env bash
 {
-    l_mname="tipc" # set module name
-    l_mtype="net" # set module type
-    l_mpath="/lib/modules/**/kernel/$l_mtype"
-    l_mpname="$(tr '-' '_' <<< "$l_mname")"
-    l_mndir="$(tr '-' '/' <<< "$l_mname")"
-    module_loadable_fix()
-    {
-    # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in "/etc/modprobe.d"
-    l_loadable="$(modprobe -n -v "$l_mname")"
-    [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P -- "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
-    if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
-        echo -e "\n - setting module: \"$l_mname\" to be not loadable"
-        echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
-    fi
-    }
-    module_loaded_fix()
-    {
-    # If the module is currently loaded, unload the module
-    if lsmod | grep "$l_mname" > /dev/null 2>&1; then
-        echo -e "\n - unloading module \"$l_mname\""
-        modprobe -r "$l_mname"
-    fi
-    }
-    module_deny_fix()
-    {
-    # If the module isn't deny listed, denylist the module
-    if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
-        echo -e "\n - deny listing \"$l_mname\""
-        echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
-    fi
-    }
-    # Check if the module exists on the system
-    for l_mdir in $l_mpath; do
-    if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
-        echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
-        module_deny_fix
-        if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
-            module_loadable_fix
-            module_loaded_fix
-        fi
-    else
-        echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
-    fi
-    done
-    echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+ l_mname="tipc" # set module name
+ l_mtype="net" # set module type
+ l_mpath="/lib/modules/**/kernel/$l_mtype"
+ l_mpname="$(tr '-' '_' <<< "$l_mname")"
+ l_mndir="$(tr '-' '/' <<< "$l_mname")"
+ module_loadable_fix()
+ {
+ # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+"/etc/modprobe.d"
+ l_loadable="$(modprobe -n -v "$l_mname")"
+ [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+ if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+ echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+ echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+ fi
+ }
+ module_loaded_fix()
+ {
+ # If the module is currently loaded, unload the module
+ if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+ echo -e "\n - unloading module \"$l_mname\""
+ modprobe -r "$l_mname"
+ fi
+ }
+ module_deny_fix()
+ {
+ # If the module isn't deny listed, denylist the module
+ if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+ echo -e "\n - deny listing \"$l_mname\""
+ echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+ fi
+ }
+ # Check if the module exists on the system
+ for l_mdir in $l_mpath; do
+ if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+ echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+ module_deny_fix
+ if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+ module_loadable_fix
+ module_loaded_fix
+ fi
+ else
+ echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+ fi
+ done
+ echo -e "\n - remediation of module: \"$l_mname\" complete\n"
 }
 #!/usr/bin/env bash
 {
-    l_mname="rds" # set module name
-    l_mtype="net" # set module type
-    l_mpath="/lib/modules/**/kernel/$l_mtype"
-    l_mpname="$(tr '-' '_' <<< "$l_mname")"
-    l_mndir="$(tr '-' '/' <<< "$l_mname")"
-    module_loadable_fix()
-    {
-    # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in "/etc/modprobe.d"
-    l_loadable="$(modprobe -n -v "$l_mname")"
-    [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P -- "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
-    if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
-        echo -e "\n - setting module: \"$l_mname\" to be not loadable"
-        echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
-    fi
-    }
-        module_loaded_fix()
-    {
-    # If the module is currently loaded, unload the module
-    if lsmod | grep "$l_mname" > /dev/null 2>&1; then
-        echo -e "\n - unloading module \"$l_mname\""
-        modprobe -r "$l_mname"
-    fi
-    }
-    module_deny_fix()
-    {
-    # If the module isn't deny listed, denylist the module
-    if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
-        echo -e "\n - deny listing \"$l_mname\""
-        echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
-    fi
-    }
-        # Check if the module exists on the system
-    for l_mdir in $l_mpath; do
-    if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
-        echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
-        module_deny_fix
-        if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
-            module_loadable_fix
-            module_loaded_fix
-        fi
-    else
-        echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
-    fi
-    done
-    echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+ l_mname="rds" # set module name
+ l_mtype="net" # set module type
+ l_mpath="/lib/modules/**/kernel/$l_mtype"
+ l_mpname="$(tr '-' '_' <<< "$l_mname")"
+ l_mndir="$(tr '-' '/' <<< "$l_mname")"
+ module_loadable_fix()
+ {
+ # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+"/etc/modprobe.d"
+ l_loadable="$(modprobe -n -v "$l_mname")"
+ [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+ if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+ echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+ echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+ fi
+ }
+ module_loaded_fix()
+ {
+ # If the module is currently loaded, unload the module
+ if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+ echo -e "\n - unloading module \"$l_mname\""
+ modprobe -r "$l_mname"
+ fi
+ }
+ module_deny_fix()
+ {
+ # If the module isn't deny listed, denylist the module
+ if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+ echo -e "\n - deny listing \"$l_mname\""
+ echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+ fi
+ }
+ # Check if the module exists on the system
+ for l_mdir in $l_mpath; do
+ if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+ echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+ module_deny_fix
+ if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+ module_loadable_fix
+ module_loaded_fix
+ fi
+ else
+ echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+ fi
+ done
+ echo -e "\n - remediation of module: \"$l_mname\" complete\n"
 }
 
 #!/usr/bin/env bash
 {
-    l_mname="sctp" # set module name
-    l_mtype="net" # set module type
-    l_mpath="/lib/modules/**/kernel/$l_mtype"
-    l_mpname="$(tr '-' '_' <<< "$l_mname")"
-    l_mndir="$(tr '-' '/' <<< "$l_mname")"
-    module_loadable_fix()
-    {
-    # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in "/etc/modprobe.d"
-    l_loadable="$(modprobe -n -v "$l_mname")"
-    [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P -- "(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
-    if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
-        echo -e "\n - setting module: \"$l_mname\" to be not loadable"
-        echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
-    fi
-    }
-        module_loaded_fix()
-    {
-    # If the module is currently loaded, unload the module
-    if lsmod | grep "$l_mname" > /dev/null 2>&1; then
-        echo -e "\n - unloading module \"$l_mname\""
-        modprobe -r "$l_mname"
-    fi
-    }
-        module_deny_fix()
-    {
-    # If the module isn't deny listed, denylist the module
-    if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
-        echo -e "\n - deny listing \"$l_mname\""
-        echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
-    fi
-    }
-    # Check if the module exists on the system
-    for l_mdir in $l_mpath; do
-    if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
-        echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
-        module_deny_fix
-        if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
-            module_loadable_fix
-            module_loaded_fix
-        fi
-    else
-        echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
-    fi
-    done
-    echo -e "\n - remediation of module: \"$l_mname\" complete\n"
+ l_mname="sctp" # set module name
+ l_mtype="net" # set module type
+ l_mpath="/lib/modules/**/kernel/$l_mtype"
+ l_mpname="$(tr '-' '_' <<< "$l_mname")"
+ l_mndir="$(tr '-' '/' <<< "$l_mname")"
+ module_loadable_fix()
+ {
+ # If the module is currently loadable, add "install {MODULE_NAME} /bin/false" to a file in
+"/etc/modprobe.d"
+ l_loadable="$(modprobe -n -v "$l_mname")"
+ [ "$(wc -l <<< "$l_loadable")" -gt "1" ] && l_loadable="$(grep -P --
+"(^\h*install|\b$l_mname)\b" <<< "$l_loadable")"
+ if ! grep -Pq -- '^\h*install \/bin\/(true|false)' <<< "$l_loadable"; then
+ echo -e "\n - setting module: \"$l_mname\" to be not loadable"
+ echo -e "install $l_mname /bin/false" >> /etc/modprobe.d/"$l_mpname".conf
+ fi
+ }
+ module_loaded_fix()
+ {
+ # If the module is currently loaded, unload the module
+ if lsmod | grep "$l_mname" > /dev/null 2>&1; then
+ echo -e "\n - unloading module \"$l_mname\""
+ modprobe -r "$l_mname"
+ fi
+ }
+ module_deny_fix()
+ {
+ # If the module isn't deny listed, denylist the module
+ if ! modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mpname\b"; then
+ echo -e "\n - deny listing \"$l_mname\""
+ echo -e "blacklist $l_mname" >> /etc/modprobe.d/"$l_mpname".conf
+ fi
+ }
+ # Check if the module exists on the system
+ for l_mdir in $l_mpath; do
+ if [ -d "$l_mdir/$l_mndir" ] && [ -n "$(ls -A $l_mdir/$l_mndir)" ]; then
+ echo -e "\n - module: \"$l_mname\" exists in \"$l_mdir\"\n - checking if disabled..."
+ module_deny_fix
+ if [ "$l_mdir" = "/lib/modules/$(uname -r)/kernel/$l_mtype" ]; then
+ module_loadable_fix
+ module_loaded_fix
+ fi
+ else
+ echo -e "\n - module: \"$l_mname\" doesn't exist in \"$l_mdir\"\n"
+ fi
+ done
+ echo -e "\n - remediation of module: \"$l_mname\" complete\n"
 }
 #!/usr/bin/env bash
 
@@ -2241,14 +2056,12 @@ fi
         echo -e "\n- Audit Result:\n ** FAIL **\n - Reason(s) for audit failure:\n$l_output2\n"
         [ -n "$l_output" ] && echo -e "\n- Correctly set:\n$l_output\n"
     fi
-}  
-
-sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1 # 3.3.4
+}
+sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1
 sysctl -w net.ipv4.route.flush=1
-sysctl -w net.ipv4.icmp_ignore_bogus_error_responses=1 # 3.3.3
 echo "net.ipv4.icmp_echo_ignore_broadcasts = 1" >> /etc/sysctl.d/60-netipv4_sysctl.conf
 
-sysctl -w net.ipv4.conf.all.accept_redirects=0 # 3.3.5
+sysctl -w net.ipv4.conf.all.accept_redirects=0
 sysctl -w net.ipv4.conf.default.accept_redirects=0
 sysctl -w net.ipv4.route.flush=1
 
@@ -2256,72 +2069,51 @@ sysctl -w net.ipv6.conf.all.accept_redirects=0
 sysctl -w net.ipv6.conf.default.accept_redirects=0
 sysctl -w net.ipv6.route.flush=1
 
-sysctl -w net.ipv4.conf.all.secure_redirects=0 # 3.3.6
+sysctl -w net.ipv4.conf.all.secure_redirects=0
 sysctl -w net.ipv4.conf.default.secure_redirects=0
 sysctl -w net.ipv4.route.flush=1
 
-sysctl -w net.ipv4.conf.all.rp_filter=1 # 3.3.7
+sysctl -w net.ipv4.conf.all.rp_filter=1
 sysctl -w net.ipv4.conf.default.rp_filter=1
 sysctl -w net.ipv4.route.flush=1
 
-sysctl -w net.ipv4.conf.all.accept_source_route=0 # 3.3.8
+sysctl -w net.ipv4.conf.all.accept_source_route=0
 sysctl -w net.ipv4.conf.default.accept_source_route=0
 sysctl -w net.ipv4.route.flush=1
 
-sysctl -w net.ipv4.conf.all.log_martians=1 # 3.3.9
+sysctl -w net.ipv4.conf.all.log_martians=1
 sysctl -w net.ipv4.conf.default.log_martians=1
 sysctl -w net.ipv4.route.flush=1
 
-sysctl -w net.ipv4.tcp_syncookies=1 # 3.3.10
+sysctl -w net.ipv4.tcp_syncookies=1
 sysctl -w net.ipv4.route.flush=1
 sysctl -w net.ipv4.ip_forward=0
 
-sysctl -w net.ipv6.conf.all.accept_ra=0 # 3.3.11
+sysctl -w net.ipv6.conf.all.accept_ra=0
 sysctl -w net.ipv6.conf.default.accept_ra=0
 sysctl -w net.ipv6.route.flush=1
 
 
 
-# 4.1.1(new) Ensure ufw is installed
 apt install ufw
-
-# 4.1.2(new) Ensure iptables-persistent is not installed with ufw
  apt purge iptables-persistent
-
   ufw allow proto tcp from any to any port 22
   systemctl unmask ufw.service
   systemctl --now enable ufw.service
-
-# 4.1.3(new) Ensure ufw service is enabled  
-ufw enable              
-
-# 4.1.4(new) Ensure loopback trafic is configured
-ufw allow in on lo
-ufw allow out on lo
-ufw deny in from 127.0.0.0/8
-ufw deny in from ::1
-
-# 4.1.5(new) Ensure outbound connections are configured
+  ufw enable
+  ufw allow in on lo
+ ufw allow out on lo
+ ufw deny in from 127.0.0.0/8
+ ufw deny in from ::1
 ufw allow out on all
-
-# 4.1.6(new) Ensure ufw firewall rules exist for all open ports
-#HAY QUE AÑADIR CADA PUERTO MANUALMENTE, PERO LUEGO NO ES NECESARIO
 #ufw allow in <port>/<tcp or udp protocol>
-#ufw deny in <port>/<tcp or udp protocol>
-
-# 4.1.7(new) Ensure ufw default deny firewall policy
-ufw default deny incoming
-ufw default deny outgoing
-ufw default deny routed
+ #ufw deny in <port>/<tcp or udp protocol>
+  ufw default deny incoming
+ ufw default deny outgoing
+ ufw default deny routed
  
-echo "install dccp /bin/true" > /etc/modprobe.d/dccp # 3.2.1
-echo "install tipc /bin/true" > /etc/modprobe.d/tipc # 3.2.2
-echo "install rds /bin/true" > /etc/modprobe.d/rds # 3.2.3
-echo "install sctp /bin/true" > /etc/modprobe.d/sctp # 3.2.4
-
 #!/bin/bash
 
-# NFTABLES DOESN'T WORK THOGHETHER WITH UFW
 # Ensure nftables is installed (uncomment if needed)
 # sudo apt update && sudo apt install -y nftables
 
@@ -2383,15 +2175,13 @@ echo "include \"/etc/nftables.rules\"" | sudo tee -a /etc/nftables.conf > /dev/n
 
 
 
-# IF YOU'RE USING UFW OR IPTABLES, YOU SHOULD SKIP THIS PART
-# AND FOLLOW THEIR RESPECTIVE RECOMENDATIONS
 # 4.3 - iptables
 # apt install iptables iptables-persistent
 
 
 #5#!/usr/bin/env bash
 
-#5.1.1 Secure sshd_config file and directory permissions
+# Secure sshd_config file and directory permissions
 {
     chmod u-x,og-rwx /etc/ssh/sshd_config
     chown root:root /etc/ssh/sshd_config
@@ -2408,37 +2198,40 @@ echo "include \"/etc/nftables.rules\"" | sudo tee -a /etc/nftables.conf > /dev/n
 #!/usr/bin/env bash
 
 # Initialize outputs and determine SSH group name
-# 5.1.2
 {
     l_output=""
     l_output2=""
     l_ssh_group_name="$(awk -F: '($1 ~ /^(ssh_keys|_?ssh)$/) {print $1}' /etc/group)"
 
     # Function to fix file access
-    FILE_ACCESS_FIX() 
-    {
+    FILE_ACCESS_FIX() {
         while IFS=: read -r l_file_mode l_file_owner l_file_group; do
             echo "File: \"$l_file\" mode: \"$l_file_mode\" owner: \"$l_file_owner\" group: \"$l_file_group\""
             l_out2=""
+            
             # Determine permission mask and maximum permissions based on group
             [ "$l_file_group" = "$l_ssh_group_name" ] && l_pmask="0137" || l_pmask="0177"
             l_maxperm="$(printf '%o' $((0777 & ~$l_pmask)))"
+
             # Update file mode if needed
             if [ $((l_file_mode & l_pmask)) -gt 0 ]; then
                 l_out2="$l_out2\n - Mode: \"$l_file_mode\" should be mode: \"$l_maxperm\" or more restrictive\n - Updating to mode: \"$l_maxperm\""
                 [ "$l_file_group" = "$l_ssh_group_name" ] && chmod u-x,g-wx,o-rwx "$l_file" || chmod u-x,go-rwx "$l_file"
             fi
+
             # Update owner if needed
             if [ "$l_file_owner" != "root" ]; then
                 l_out2="$l_out2\n - Owned by: \"$l_file_owner\" should be owned by \"root\"\n - Changing ownership to \"root\""
                 chown root "$l_file"
             fi
+
             # Update group if needed
             if [[ ! "$l_file_group" =~ ($l_ssh_group_name|root) ]]; then
                 l_new_group="${l_ssh_group_name:-root}"
                 l_out2="$l_out2\n - Owned by group \"$l_file_group\" should be group owned by: \"$l_new_group\"\n - Changing group ownership to \"$l_new_group\""
                 chgrp "$l_new_group" "$l_file"
             fi
+
             # Append results to output
             if [ -n "$l_out2" ]; then
                 l_output2="$l_output2\n - File: \"$l_file\"$l_out2"
@@ -2465,10 +2258,12 @@ echo "include \"/etc/nftables.rules\"" | sudo tee -a /etc/nftables.conf > /dev/n
 
 #!/usr/bin/env bash
 
-#5.1.3 Define variables and permission mask for sshd_config files
+# Define variables and permission mask for sshd_config files
 {
-    l_output="" l_output2=""
-    l_pmask="0133" && l_maxperm="$( printf '%o' $(( 0777 & ~$l_pmask )) )"
+    l_output=""
+    l_output2=""
+    l_pmask="0133"
+    l_maxperm="$(printf '%o' $((0777 & ~$l_pmask)))"
 
     # Function to enforce file access policies
     FILE_ACCESS_FIX() {
@@ -2524,67 +2319,67 @@ cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
 
 # Define the changes to be made
 {
-  #5.1.5 Set Banner parameter above any Include and Match entries
+  # Set Banner parameter above any Include and Match entries
   echo "Banner /etc/issue.net"
 
-  #5.1.6 Set Ciphers to unapproved weak Ciphers
+  # Set Ciphers to unapproved weak Ciphers
   echo "Ciphers -3des-cbc,aes128-cbc,aes192-cbc,aes256-cbc,chacha20-poly1305@openssh.com"
 
-  #5.1.7 Set ClientAliveInterval and ClientAliveCountMax parameters
+  # Set ClientAliveInterval and ClientAliveCountMax parameters
   echo "ClientAliveInterval 15"
   echo "ClientAliveCountMax 3"
 
-  #5.1.8 Set DisableForwarding to yes
+  # Set DisableForwarding to yes
   echo "DisableForwarding yes"
 
-  #5.1.9 Set GSSAPIAuthentication to no
+  # Set GSSAPIAuthentication to no
   echo "GSSAPIAuthentication no"
 
-  #5.1.10 Set HostbasedAuthentication to no
+  # Set HostbasedAuthentication to no
   echo "HostbasedAuthentication no"
 
-  #5.1.11 Set IgnoreRhosts to yes
+  # Set IgnoreRhosts to yes
   echo "IgnoreRhosts yes"
 
-  #5.1.12 Set KexAlgorithms to unapproved weak algorithms
+  # Set KexAlgorithms to unapproved weak algorithms
   echo "KexAlgorithms -diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1"
 
-  #5.1.13 Set LoginGraceTime to 60 seconds
+  # Set LoginGraceTime to 60 seconds
   echo "LoginGraceTime 60"
 
-  #5.1.14 Set LogLevel to VERBOSE or INFO
+  # Set LogLevel to VERBOSE or INFO
   echo "LogLevel VERBOSE"
 
-  #5.1.15 Set MACs to unapproved weak MACs
+  # Set MACs to unapproved weak MACs
   echo "MACs -hmac-md5,hmac-md5-96,hmac-ripemd160,hmac-sha1-96,umac64@openssh.com,hmac-md5-etm@openssh.com,hmac-md5-96-etm@openssh.com,hmacripemd160-etm@openssh.com,hmac-sha1-96-etm@openssh.com,umac-64-etm@openssh.com,umac-128-etm@openssh.com"
 
-  #5.1.16 Set MaxAuthTries to 4 or less
+  # Set MaxAuthTries to 4 or less
   echo "MaxAuthTries 4"
 
-  #5.1.17 Set MaxSessions to 10 or less
+  # Set MaxSessions to 10 or less
   echo "MaxSessions 10"
 
-  #5.1.18 Set MaxStartups to 10:30:60 or more restrictive
+  # Set MaxStartups to 10:30:60 or more restrictive
   echo "MaxStartups 10:30:60"
 
-  #5.1.19 Set PermitEmptyPasswords to no
+  # Set PermitEmptyPasswords to no
   echo "PermitEmptyPasswords no"
 
-  #5.1.20 Set PermitRootLogin to no
+  # Set PermitRootLogin to no
   echo "PermitRootLogin no"
 
-  #5.1.21 Set PermitUserEnvironment to no
+  # Set PermitUserEnvironment to no
   echo "PermitUserEnvironment no"
 
-  #5.1.22 Set UsePAM to yes
+  # Set UsePAM to yes
   echo "UsePAM yes"
 
 } >> /etc/ssh/sshd_config
+
 # Restart SSH service to apply changes
 systemctl restart sshd
 
 echo "Changes applied successfully."
-
 
 #!/bin/bash
 
@@ -2593,15 +2388,14 @@ SUDOERS_FILE="/etc/sudoers"
 
 # Use visudo to safely edit the sudoers file with the following changes:
 
-# 5.2.2 Add Defaults use_pty
+# Add Defaults use_pty
 echo "Adding Defaults use_pty..."
 visudo -cf "$SUDOERS_FILE" && echo 'Defaults use_pty' | sudo tee -a "$SUDOERS_FILE" > /dev/null
 
-# 5.2.3 Add Defaults logfile="/var/log/sudo.log"
+# Add Defaults logfile="/var/log/sudo.log"
 echo "Adding Defaults logfile=\"/var/log/sudo.log\"..."
 visudo -cf "$SUDOERS_FILE" && echo 'Defaults logfile="/var/log/sudo.log"' | sudo tee -a "$SUDOERS_FILE" > /dev/null
 
-# 5.2.6 Ensure sudo authentication timeout is not disabled locally
 # Check if timestamp_timeout is greater than 15 minutes and modify it
 echo "Checking and modifying timestamp_timeout if needed..."
 CURRENT_TIMEOUT=$(sudo grep -E '^Defaults.*timestamp_timeout=' "$SUDOERS_FILE" | awk -F'=' '{print $2}')
@@ -2638,7 +2432,6 @@ if ! grep -q "auth required pam_wheel.so use_uid group=${GROUP_NAME}" $PAM_FILE;
     # Make a backup of the original PAM configuration file
     cp $PAM_FILE $PAM_FILE.bak
 
-    # 5.2.7
     # Add the line to the PAM file
     sed -i '/^auth.*pam_wheel.so/ a auth required pam_wheel.so use_uid group='${GROUP_NAME}'' $PAM_FILE
 else
@@ -2655,16 +2448,10 @@ fi
 # Final message
 echo "Access to the 'su' command is now restricted to users in the group ${GROUP_NAME}."
 
-# 5.3.1.1
 sudo apt upgrade -y libpam-runtime
 
-# 5.3.1.2
 apt upgrade -y libpam-modules
-
-# 5.3.1.3
 apt install -y libpam-pwquality
-
-# 5.3.2.1
 pam-auth-update --enable unix
 
 
@@ -2673,7 +2460,7 @@ pam-auth-update --enable unix
 echo "Starting CIS Ubuntu 22.04 LTS Benchmark Extended Configuration..."
 
 # Basic variables for paths
-PWQUALITY_CONF_DIR="/etc/security/pwquality.conf.d" # 3.3.2.1
+PWQUALITY_CONF_DIR="/etc/security/pwquality.conf.d"
 FAILLOCK_CONF="/etc/security/faillock.conf"
 PAM_CONFIGS="/usr/share/pam-configs"
 
@@ -2681,11 +2468,9 @@ PAM_CONFIGS="/usr/share/pam-configs"
 echo "Enabling pam_unix..."
 pam-auth-update --enable unix
 
-
 # --- Section 1: User Authentication and Lockout Policies ---
 
-# Configure 5.3.2.2
-# and enable pam_faillock for account lockout
+# Configure and enable pam_faillock for account lockout
 echo "Configuring pam_faillock for lockout policies..."
 {
     printf "Name: Enable pam_faillock to deny access\n"
@@ -2717,8 +2502,8 @@ mkdir -p $PWQUALITY_CONF_DIR
     printf "Priority: 1024\n"
     printf "Conflicts: cracklib\n"
     printf "Password-Type: Primary\n"
-    printf "Password: requisite pam_pwquality.so retry=3 minlen=14 difok=2 dcredit=-1 ucredit=-1 lcredit=-1 ocredit=-1 maxrepeat=3 maxsequence=3 dictcheck=1 enforcing=1\n" 
-} > $PAM_CONFIGS/pwquality #???? #5.3.2.3 #5.3.3.2.2  5.3.3.2.3  5.3.2.2.4  5.3.3.2.2.5  5.3.3.2.2.6  5.3.3.2.2.7
+    printf "Password: requisite pam_pwquality.so retry=3 minlen=14 difok=2 dcredit=-1 ucredit=-1 lcredit=-1 ocredit=-1 maxrepeat=3 maxsequence=3 dictcheck=1 enforcing=1\n"
+} > $PAM_CONFIGS/pwquality
 
 pam-auth-update --enable pwquality
 
@@ -2735,34 +2520,21 @@ echo "Configuring additional password policies in pwquality.conf..."
     printf "maxsequence = 3\n"
     printf "dictcheck = 1\n"
     printf "enforcing = 1\n"
-} > $PWQUALITY_CONF_DIR/cis_pwquality.conf #???? #5.3.3.2.2  5.3.3.2.3  5.3.3.2.2.4  5.3.3.2.2.5  5.3.3.2.2.6  5.3.3.2.2.7
-
-# 5.3.3.2.8(new) Enforce password quality is enforced for the root user
-#NO SÉ SI ESTÁ REPETIDO
-{
- [ ! -d /etc/security/pwquality.conf.d/ ] && mkdir /etc/security/pwquality.conf.d/
- printf '\n%s\n' "enforce_for_root" > /etc/security/pwquality.conf.d/50- pwroot.conf
-}
-
-#INTENTO DE 5.3.2.4
-#(new) Ensure pam_pwhistory module is enabled
-
-if grep -P -- '\bpam_pwhistory\.so\b' /usr/share/pam-configs/*
-
+} > $PWQUALITY_CONF_DIR/cis_pwquality.conf
 
 # Ensure account lockout policies
 echo "Setting lockout policies in faillock.conf..."
 {
-    printf "deny = 5\n" #5.3.3.1.1
-    printf "unlock_time = 900\n" #5.3.3.2.1
-    printf "even_deny_root\n" # 5.3.3.1.3
+    printf "deny = 5\n"
+    printf "unlock_time = 900\n"
+    printf "even_deny_root\n"
     printf "root_unlock_time = 60\n"
 } > $FAILLOCK_CONF
 
 # --- Section 2: Network Configuration ---
 
 # Disable IPv6 if not required
-echo "Disabling IPv6..." # 3.1.1
+echo "Disabling IPv6..."
 sysctl -w net.ipv6.conf.all.disable_ipv6=1
 sysctl -w net.ipv6.conf.default.disable_ipv6=1
 sysctl -w net.ipv6.conf.lo.disable_ipv6=1
@@ -2815,7 +2587,7 @@ chmod 000 /etc/shadow
 chmod 000 /etc/gshadow
 chmod 644 /etc/group
 
-# --- Section 5: SSH Configuration ????---
+# --- Section 5: SSH Configuration ---
 
 echo "Configuring SSH settings for enhanced security..."
 sed -i 's/^#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
@@ -3005,9 +2777,9 @@ systemctl disable bluetooth
 systemctl disable nfs-kernel-server rpcbind
 systemctl disable slapd
 systemctl disable bind9
-systemctl disable vsftpd
+# systemctl disable vsftpd
 systemctl disable apache2
-systemctl disable dovecot  #(2.1.8)
+systemctl disable dovecot
 systemctl disable smbd nmbd
 systemctl disable squid
 systemctl disable snmpd
@@ -3022,14 +2794,10 @@ sed -i 's/^weekly/monthly/' /etc/logrotate.conf
 # Configure journald for persistent storage and 90-day retention
 echo "Configuring journald for persistent log storage..."
 mkdir -p /var/log/journal
-
-# 6.2.1.1.5 Ensure journald Storage is configured
 sed -i 's/^#Storage.*/Storage=persistent/' /etc/systemd/journald.conf
-
 sed -i 's/^#SystemMaxUse=.*/SystemMaxUse=1G/' /etc/systemd/journald.conf
 sed -i 's/^#SystemMaxFileSize=.*/SystemMaxFileSize=100M/' /etc/systemd/journald.conf
 sed -i 's/^#MaxRetentionSec=.*/MaxRetentionSec=90d/' /etc/systemd/journald.conf
-
 systemctl restart systemd-journald
 
 # --- Section 3: Secure Boot Settings ---
@@ -3048,54 +2816,14 @@ fi
 
 # --- Section 4: Kernel and Filesystem Security Settings ---
 
-# Disable uncommon filesystems: 1.1.1.1, 1.1.1.2, 1.1.1.3, 1.1.1.4, 1.1.1.5, 1.1.1.6, 1.1.1.7
+# Disable uncommon filesystems
 echo "Disabling uncommon filesystems..."
 for fs in cramfs freevxfs jffs2 hfs hfsplus squashfs udf; do
     echo "install $fs /bin/true" >> /etc/modprobe.d/CIS-uncommon-filesystems.conf
 done
 
-
-# Restrict mounting of USB storage: 1.1.1.8
-echo "Restricting mounting of USB storage devices..."
-echo "install usb-storage /bin/true" >> /etc/modprobe.d/usb-storage.conf
-
-# 1.1.2.1.1
-if ! findmnt -kn /tmp; then
-    echo "Resolving /tmp not being seperate partition"
-    echo "tmpfs /tmp tmpfs defaults,rw,nosuid,nodev,noexec,relatime 0 0" >> /etc/fstab
-    mount -o remount,noexec,nosuid /tmp
-fi
-
-# 1.1.2.1.2, 1.1.2.1.3, 1.1.2.1.4
-for option in nodev nosuid noexec; do
-    if findmnt -kn /tmp | grep -v "$option"; then
-        awk "{if(/\/tmp/) { print \$1, \$2, \$3, \$4 \",$option\", \$5, \$6 } else { print \$0 }}" /etc/fstab > tmp
-        mv tmp /etc/fstab
-        fi
-    done
-
-# Secure shared memory 1.1.2.2.1
-if ! findmnt -kn /run/shm; then
-    echo "Resolving /run/shm not being seperate partition"
-    echo "tmpfs /run/shm tmpfs defaults,nodev,noexec,nosuid 0 0" >> /etc/fstab
-    mount -o remount,noexec,nosuid /run/shm
-fi
-
-for option in nodev nosuid noexec; do
-    if findmnt -kn /run/shm | grep -v "$option"; then
-        awk "{if(/\/run/shm/) { print \$1, \$2, \$3, \$4 \",$option\", \$5, \$6 } else { print \$0 }}" /etc/fstab > tmp
-        mv tmp /etc/fstab
-        fi
-    done
-
-# 1.2.2.1
-apt update && apt upgrade
-
-
-
 # Restrict core dumps for all users
 echo "Disabling core dumps for all users..."
-# 1.5.3
 echo "* hard core 0" >> /etc/security/limits.conf
 sysctl -w fs.suid_dumpable=0
 echo "fs.suid_dumpable=0" >> /etc/sysctl.conf
@@ -3107,9 +2835,8 @@ echo "install usb-storage /bin/true" >> /etc/modprobe.d/usb-storage.conf
 # Enable auditing for all successful and unsuccessful privileged commands
 echo "Enabling auditing for all privileged commands..."
 for file in $(find / -xdev \( -perm -4000 -o -perm -2000 \)); do
-    echo "-a always,exit -F path=$filawk '{if(/\/tmp/) { print $1, $2, $3, $4 ",nodev", $5, $6 } else { print $0 }}' teste -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" >> /etc/audit/rules.d/privileged.rules
+    echo "-a always,exit -F path=$file -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" >> /etc/audit/rules.d/privileged.rules
 done
-
 
 # Reload auditd rules
 augenrules --load
@@ -3119,7 +2846,7 @@ augenrules --load
 # Disable IPv6 if not required
 echo "Disabling IPv6..."
 sysctl -w net.ipv6.conf.all.disable_ipv6=1
-sysctl -w net.ipv6.conf.default.disable_ipv6=1/tmp
+sysctl -w net.ipv6.conf.default.disable_ipv6=1
 echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
 echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
 
@@ -3281,12 +3008,10 @@ sysctl -w net.ipv4.conf.default.accept_source_route=0
 echo "net.ipv4.conf.all.accept_source_route = 0" >> /etc/sysctl.conf
 echo "net.ipv4.conf.default.accept_source_route = 0" >> /etc/sysctl.conf
 
-sysctl -w net.ipv4.conf.all.send_redirects=0 # 3.3.2
+sysctl -w net.ipv4.conf.all.send_redirects=0
 sysctl -w net.ipv4.conf.default.send_redirects=0
 echo "net.ipv4.conf.all.send_redirects = 0" >> /etc/sysctl.conf
 echo "net.ipv4.conf.default.send_redirects = 0" >> /etc/sysctl.conf
-
-echo "net.ipv4.icmp_ignore_bogus_error_responses = 1" >> /etc/sysctl.conf
 
 # Prevent sysrq key-based debugging
 echo "Disabling sysrq key-based debugging..."
@@ -3359,15 +3084,9 @@ chmod +x /etc/cron.daily/tripwire_check
 
 echo "Final Extended CIS Ubuntu 22.04 LTS Benchmark Configuration Completed."
 
-# 6.1(new) Section
-# 6.1.1(new) Ensure AIDE is installed
-apt install aide aide-common
 
 #!/bin/bash
-# 6.1.2(new) Ensure filesystem integrity is regularly checked
-echo "0 5 * * * /usr/bin/aide.wrapper --config /etc/aide/aide.conf --update" > /etc/cron.d/aide
 
-# 6.2 Section
 echo "Starting CIS Benchmark 6.2: System Logging Configuration..."
 
 # --- Section 6.2.1: Configure journald ---
@@ -3383,142 +3102,17 @@ systemctl start systemd-journald
 # Configure journald settings in /etc/systemd/journald.conf
 echo "Applying journald configurations..."
 sed -i 's/^#*Storage=.*/Storage=persistent/' /etc/systemd/journald.conf
-
-# 6.2.1.1.6 Ensure journald Compress is configured
 sed -i 's/^#*Compress=.*/Compress=yes/' /etc/systemd/journald.conf
-
 sed -i 's/^#*SystemMaxUse=.*/SystemMaxUse=1G/' /etc/systemd/journald.conf
 sed -i 's/^#*SystemMaxFileSize=.*/SystemMaxFileSize=200M/' /etc/systemd/journald.conf
 sed -i 's/^#*MaxRetentionSec=.*/MaxRetentionSec=1month/' /etc/systemd/journald.conf
-
-# 6.2.1.1.4 Ensure journald ForwardToSyslog is disabled
 sed -i 's/^#*ForwardToSyslog=.*/ForwardToSyslog=no/' /etc/systemd/journald.conf
 
 # Restart journald to apply changes
 echo "Restarting journald to apply new settings..."
 systemctl restart systemd-journald
 
-# 6.2.1.2.3(new) Ensure systemd-journal-upload is enabled and active
-systemctl unmask systemd-journal-upload.service
-systemctl --now enable systemd-journal-upload.service
-
-# 6.2.1.2.4(new) systemd-journal-remote service us not in use
-systemctl stop systemd-journal-remote.socket systemd-journal-remote.service
-systemctl mask systemd-journal-remote.socket systemd-journal-remote.service
-
 # --- Section 6.2.2: Configure Logfiles ---
-
-#SCRIPT(new)
-# 6.2.2.1(new) Ensure access to all logfiles has been configured
-
-#!/usr/bin/env bash
-{
-    l_op2="" l_output2=""
-    l_uidmin="$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)"
-    file_test_fix()
-    {
-    l_op2=""
-    l_fuser="root"
-    l_fgroup="root"
-    if [ $(( $l_mode & $perm_mask )) -gt 0 ]; then
-        l_op2="$l_op2\n - Mode: \"$l_mode\" should be \"$maxperm\" or more restrictive\n - Removing excess permissions"
-        chmod "$l_rperms" "$l_fname"
-    fi
-    if [[ ! "$l_user" =~ $l_auser ]]; then
-        l_op2="$l_op2\n - Owned by: \"$l_user\" and should be owned by \"${l_auser//|/ or }\"\n - Changing ownership to: \"$l_fuser\""
-        chown "$l_fuser" "$l_fname"
-    fi
-    if [[ ! "$l_group" =~ $l_agroup ]]; then
-        l_op2="$l_op2\n - Group owned by: \"$l_group\" and should be group owned by \"${l_agroup//|/ or }\"\n - Changing group ownership to: \"$l_fgroup\""
-        chgrp "$l_fgroup" "$l_fname"
-    fi
-        [ -n "$l_op2" ] && l_output2="$l_output2\n - File: \"$l_fname\" is:$l_op2\n"
-    }
-    unset a_file && a_file=() # clear and initialize array
-    # Loop to create array with stat of files that could possibly fail one of the audits
-    while IFS= read -r -d $'\0' l_file; do
-        [ -e "$l_file" ] && a_file+=("$(stat -Lc '%n^%#a^%U^%u^%G^%g' "$l_file")")
-    done < <(find -L /var/log -type f \( -perm /0137 -o ! -user root -o ! -group root \) -print0)
-    while IFS="^" read -r l_fname l_mode l_user l_uid l_group l_gid; do
-        l_bname="$(basename "$l_fname")"
-    case "$l_bname" in 
-        lastlog | lastlog.* | wtmp | wtmp.* | wtmp-* | btmp | btmp.* | btmp-* | README)
-        perm_mask='0113'
-        maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
-        l_rperms="ug-x,o-wx"
-        l_auser="root"
-        l_agroup="(root|utmp)"
-        file_test_fix
-        ;;
-        secure | auth.log | syslog | messages)
-        perm_mask='0137'
-        maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
-        l_rperms="u-x,g-wx,o-rwx"
-        l_auser="(root|syslog)"
-        l_agroup="(root|adm)"
-        file_test_fix
-        ;;
-        SSSD | sssd)
-        perm_mask='0117'
-        maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
-        l_rperms="ug-x,o-rwx"
-        l_auser="(root|SSSD)"
-        l_agroup="(root|SSSD)"
-        file_test_fix
-        ;;
-
-        gdm | gdm3)
-        perm_mask='0117'
-        l_rperms="ug-x,o-rwx"
-        maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
-        l_auser="root"
-        l_agroup="(root|gdm|gdm3)"
-        file_test_fix
-        ;;
-        *.journal | *.journal~)
-        perm_mask='0137'
-        maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
-        l_rperms="u-x,g-wx,o-rwx"
-        l_auser="root"
-        l_agroup="(root|systemd-journal)"
-        file_test_fix
-        ;;
-        *)
- perm_mask='0137'
- maxperm="$( printf '%o' $(( 0777 & ~$perm_mask)) )"
- l_rperms="u-x,g-wx,o-rwx"
- l_auser="(root|syslog)"
- l_agroup="(root|adm)"
- if [ "$l_uid" -lt "$l_uidmin" ] && [ -z "$(awk -v grp="$l_group" -F:
-'$1==grp {print $4}' /etc/group)" ]; then
- if [[ ! "$l_user" =~ $l_auser ]]; then
- l_auser="(root|syslog|$l_user)"
- fi
- if [[ ! "$l_group" =~ $l_agroup ]]; then
- l_tst=""
-while l_out3="" read -r l_duid; do
- [ "$l_duid" -ge "$l_uidmin" ] && l_tst=failed
- done <<< "$(awk -F: '$4=='"$l_gid"' {print $3}' /etc/passwd)"
- [ "$l_tst" != "failed" ] && l_agroup="(root|adm|$l_group)"
- fi
- fi
- file_test_fix
- ;;
- esac
- done <<< "$(printf '%s\n' "${a_file[@]}")"
- unset a_file # Clear array
- # If all files passed, then we report no changes
- if [ -z "$l_output2" ]; then
- echo -e "- All files in \"/var/log/\" have appropriate permissions and
-ownership\n - No changes required\n"
- else
- # print report of changes
- echo -e "\n$l_output2"
- fi
-}
-
-# SCRIPT END
-echo "ya hemos destruido la competencia"
 
 # Ensure access permissions are restricted for all log files
 echo "Restricting access to log files in /var/log..."
@@ -3557,7 +3151,6 @@ echo "Starting CIS Benchmark 6.3.1: Configure auditd Service..."
 echo "Checking if auditd is installed..."
 if ! command -v auditctl > /dev/null; then
     echo "Installing auditd..."
-    # 6.3.1.1
     apt-get update -y && apt-get install -y auditd audispd-plugins
 else
     echo "auditd is already installed."
@@ -3567,7 +3160,6 @@ fi
 
 # Enable and start auditd service to ensure it is running on startup
 echo "Enabling and starting auditd service..."
-systemctl unmask auditd
 systemctl enable auditd
 systemctl start auditd
 
@@ -3579,10 +3171,8 @@ systemctl is-active --quiet auditd && echo "auditd service is running." || echo 
 # Modify GRUB to add 'audit=1' to enable auditing at boot for early processes
 echo "Enabling auditing for processes that start prior to auditd..."
 if ! grep -q "audit=1" /etc/default/grub; then
-    #6.3.1.3    
     sed -i 's/GRUB_CMDLINE_LINUX="/&audit=1 /' /etc/default/grub
     update-grub
-
     echo "Reboot required to apply audit=1 setting."
 else
     echo "Audit parameter already set in GRUB."
@@ -3593,10 +3183,8 @@ fi
 # Set audit_backlog_limit to ensure the system can handle a high volume of audit messages
 echo "Configuring audit_backlog_limit..."
 if ! grep -q "audit_backlog_limit=" /etc/default/grub; then
-    # 6.3.1.4
     sed -i 's/GRUB_CMDLINE_LINUX="/&audit_backlog_limit=8192 /' /etc/default/grub
     update-grub
-
     echo "Reboot required to apply audit_backlog_limit setting."
 else
     echo "audit_backlog_limit already set in GRUB."
@@ -3611,7 +3199,6 @@ echo "Starting CIS Benchmark 6.3.2: Configure Data Retention..."
 
 # Set a maximum log file size of 100 MB and keep up to 10 rotated logs
 echo "Configuring audit log storage size..."
-#6.3.2.1
 sed -i 's/^max_log_file = .*/max_log_file = 100/' /etc/audit/auditd.conf
 sed -i 's/^num_logs = .*/num_logs = 10/' /etc/audit/auditd.conf
 
@@ -3619,7 +3206,6 @@ sed -i 's/^num_logs = .*/num_logs = 10/' /etc/audit/auditd.conf
 
 # Prevent automatic deletion of audit logs by disabling 'max_log_file_action'
 echo "Disabling automatic audit log deletion..."
-# 6.3.2.2
 sed -i 's/^max_log_file_action = .*/max_log_file_action = keep_logs/' /etc/audit/auditd.conf
 
 # --- Section 6.3.2.3: Ensure system is disabled when audit logs are full ---
@@ -3831,7 +3417,7 @@ check_permissions() {
     fi
 }
 
-# 7.1.1-.10 - Ensure permissions on key system files
+# 7.1.x - Ensure permissions on key system files
 check_permissions "/etc/passwd" 644 root root
 check_permissions "/etc/passwd-" 644 root root
 check_permissions "/etc/group" 644 root root
@@ -3947,20 +3533,6 @@ print_status() {
     echo "Checking $1..."
 }
 
-# 5.4.3 Configure User Default Environment
-# 5.4.3.1 Ensure nologin is not listed in /etc/shells
-print_status "Checking for nologin in /etc/shells"
-sed -i '/\/nologin/d' /etc/shells
-
-# 5.4.3.2 Ensure default user shell timeout is configured
-print_status "Configuring default user shell timeout"
-echo "readonly TMOUT=600" >> /etc/profile.d/tmout.sh
-echo "export TMOUT" >> /etc/profile.d/tmout.sh
-
-# 5.4.3.3 Ensure default user umask is configured
-print_status "Configuring default user umask"
-echo "umask 027" >> /etc/profile
-
 # 5.4.1 Configure Shadow Password Suite Parameters
 # 5.4.1.1 Ensure password expiration is configured
 print_status "Password expiration settings"
@@ -4038,3 +3610,16 @@ awk -F: '($3 >= 1000 && $7 == "/usr/sbin/nologin") {print $1}' /etc/passwd | whi
     usermod -L "$user"
 done
 
+# 5.4.3 Configure User Default Environment
+# 5.4.3.1 Ensure nologin is not listed in /etc/shells
+print_status "Checking for nologin in /etc/shells"
+sed -i '/\/nologin/d' /etc/shells
+
+# 5.4.3.2 Ensure default user shell timeout is configured
+print_status "Configuring default user shell timeout"
+echo "readonly TMOUT=600" >> /etc/profile.d/tmout.sh
+echo "export TMOUT" >> /etc/profile.d/tmout.sh
+
+# 5.4.3.3 Ensure default user umask is configured
+print_status "Configuring default user umask"
+echo "umask 027" >> /etc/profile

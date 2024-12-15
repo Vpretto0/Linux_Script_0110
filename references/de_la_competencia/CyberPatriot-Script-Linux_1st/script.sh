@@ -1305,8 +1305,9 @@ systemctl stop dnsmasq
 systemctl disable dnsmasq
 
 # 2.1.6 Ensure ftp server services are not in use
-systemctl stop vsftpd
-systemctl disable vsftpd
+# systemctl stop vsftpd
+# systemctl disable vsftpd
+            #Special services 
 
 # 2.1.7 Ensure ldap server services are not in use
 systemctl stop slapd
@@ -1333,8 +1334,8 @@ systemctl stop snmpd
 systemctl disable snmpd
 
 # 2.1.13 Ensure tftp server services are not in use
-systemctl stop tftp
-systemctl disable tftp
+# systemctl stop tftp
+# systemctl disable tftp
 
 # 2.1.14 Ensure web server services are not in use
 systemctl stop httpd
@@ -2768,7 +2769,7 @@ systemctl disable bluetooth
 systemctl disable nfs-kernel-server rpcbind
 systemctl disable slapd
 systemctl disable bind9
-systemctl disable vsftpd
+# systemctl disable vsftpd
 systemctl disable apache2
 systemctl disable dovecot
 systemctl disable smbd nmbd
