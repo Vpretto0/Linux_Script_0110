@@ -3623,3 +3623,6 @@ echo "export TMOUT" >> /etc/profile.d/tmout.sh
 # 5.4.3.3 Ensure default user umask is configured
 print_status "Configuring default user umask"
 echo "umask 027" >> /etc/profile
+
+samsep10l
+samsep10l

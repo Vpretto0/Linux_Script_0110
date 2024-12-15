@@ -593,40 +593,7 @@ echo "$LogTime uss: [$UserName]# Samba has been removed." >> output.log
 		echo "DNS not found."
 		sleep 1
 	fi
-##Looks for FTP
-	dpkg -l | grep -i 'vsftpd|ftp' >> output.log
-	if [ $? -eq 0 ]
-	then	
-		read -p "FTP Server has been installed, would you like to remove it?[y/n]: " a
-		if [ $a = y ]
-		then
-			PID = `pgrep vsftpd`
-			sed -i 's/^/#/' /etc/vsftpd.conf
-			kill $PID
-			apt autoremove -y --purge vsftpd ftp
-		else
-			sed -i 's/anonymous_enable=.*/anonymous_enable=NO/' /etc/vsftpd.conf
-			sed -i 's/local_enable=.*/local_enable=YES/' /etc/vsftpd.conf
-			sed -i 's/#write_enable=.*/write_enable=YES/' /etc/vsftpd.conf
-			sed -i 's/#chroot_local_user=.*/chroot_local_user=YES/' /etc/vsftpd.conf
-		fi
-	else
-		echo "FTP has not been found."
-		sleep 1
-	fi
-##Looks for TFTPD
-	dpkg -l | grep tftpd >> output.log
-	if [ $? -eq 0 ]
-	then
-		read -p "TFTPD has been installed, would you like to remove it?[y/n]: " a
-		if [ $a = y ]
-		then
-			apt autoremove -y --purge tftpd
-		fi
-	else
-		echo "TFTPD not found."
-		sleep 1
-	fi
+
 ##Looking for VNC
 	dpkg -l | grep -E 'x11vnc|tightvncserver' >> output.log
 	if [ $? -eq 0 ]
